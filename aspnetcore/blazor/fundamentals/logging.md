@@ -5,13 +5,13 @@ description: Learn about logging in Blazor apps, including log level configurati
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 12/16/2020
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/fundamentals/logging
 ---
 # ASP.NET Core Blazor logging
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 ## Logging in Blazor WebAssembly apps
 
@@ -21,6 +21,12 @@ Add the namespace for <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting?
 
 ```csharp
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+```
+
+Some logging features also require adding the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> to `Program.cs`:
+
+```csharp
+using Microsoft.Extensions.Logging;
 ```
 
 In `Program.cs`, set the minimum logging level with <xref:Microsoft.Extensions.Logging.LoggingBuilderExtensions.SetMinimumLevel%2A?displayProperty=nameWithType> and add the custom logging provider:
@@ -49,7 +55,7 @@ Inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> to add a `WebAssem
 
 Add the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> and inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> into the component:
 
-```csharp
+```razor
 @using Microsoft.Extensions.Logging
 @inject ILoggerProvider LoggerProvider
 ```
@@ -89,9 +95,9 @@ The following example demonstrates logging with an <xref:Microsoft.Extensions.Lo
 
 * <xref:fundamentals/logging/index>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 ## Logging in Blazor WebAssembly apps
 
@@ -101,6 +107,12 @@ Add the namespace for <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting?
 
 ```csharp
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+```
+
+Some logging features also require adding the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> to `Program.cs`:
+
+```csharp
+using Microsoft.Extensions.Logging;
 ```
 
 In `Program.cs`, set the minimum logging level with <xref:Microsoft.Extensions.Logging.LoggingBuilderExtensions.SetMinimumLevel%2A?displayProperty=nameWithType> and add the custom logging provider:
@@ -129,7 +141,7 @@ Inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> to add a `WebAssem
 
 Add the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> and inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> into the component:
 
-```csharp
+```razor
 @using Microsoft.Extensions.Logging
 @inject ILoggerProvider LoggerProvider
 ```
@@ -169,9 +181,9 @@ The following example demonstrates logging with an <xref:Microsoft.Extensions.Lo
 
 * <xref:fundamentals/logging/index>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 ## Logging in Blazor WebAssembly apps
 
@@ -181,6 +193,12 @@ Add the namespace for <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting?
 
 ```csharp
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+```
+
+Some logging features also require adding the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> to `Program.cs`:
+
+```csharp
+using Microsoft.Extensions.Logging;
 ```
 
 In `Program.cs`, set the minimum logging level with <xref:Microsoft.Extensions.Logging.LoggingBuilderExtensions.SetMinimumLevel%2A?displayProperty=nameWithType> and add the custom logging provider:
@@ -209,7 +227,7 @@ Inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> to add a `WebAssem
 
 Add the namespace for <xref:Microsoft.Extensions.Logging?displayProperty=fullName> and inject an <xref:Microsoft.Extensions.Logging.ILoggerProvider> into the component:
 
-```csharp
+```razor
 @using Microsoft.Extensions.Logging
 @inject ILoggerProvider LoggerProvider
 ```
@@ -249,4 +267,4 @@ The following example demonstrates logging with an <xref:Microsoft.Extensions.Lo
 
 * <xref:fundamentals/logging/index>
 
-::: moniker-end
+:::moniker-end

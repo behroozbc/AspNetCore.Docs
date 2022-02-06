@@ -5,13 +5,13 @@ description: Learn about Blazor's event handling features, including event argum
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 03/16/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/components/event-handling
 ---
 # ASP.NET Core Blazor event handling
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 Specify delegate event handlers in Razor component markup with [`@on{DOM EVENT}="{DELEGATE}"`](xref:mvc/views/razor#onevent) Razor syntax:
 
@@ -114,8 +114,8 @@ Custom events with custom event arguments are generally enabled with the followi
    ```csharp
    public class CustomEventArgs : EventArgs
    {
-       public string CustomProperty1 {get; set;}
-       public string CustomProperty2 {get; set;}
+       public string? CustomProperty1 {get; set;}
+       public string? CustomProperty2 {get; set;}
    }
    ```
 
@@ -165,7 +165,7 @@ public static class EventHandlers
 public class CustomPasteEventArgs : EventArgs
 {
     public DateTime EventTimestamp { get; set; }
-    public string PastedData { get; set; }
+    public string? PastedData { get; set; }
 }
 ```
 
@@ -178,10 +178,10 @@ Add JavaScript code to supply data for the <xref:System.EventArgs> subclass. In 
     Blazor.registerCustomEventType('custompaste', {
         browserEventName: 'paste',
         createEventArgs: event => {
-            return {
-                eventTimestamp: new Date(),
-                pastedData: event.clipboardData.getData('text')
-            };
+          return {
+            eventTimestamp: new Date(),
+            pastedData: event.clipboardData.getData('text')
+          };
         }
     });
 </script>
@@ -216,7 +216,7 @@ In a Razor component, attach the custom handler to an element.
 </p>
 
 @code {
-    private string message;
+    private string? message;
 
     private void HandleCustomPaste(CustomPasteEventArgs eventArgs)
     {
@@ -336,9 +336,9 @@ Call <xref:Microsoft.AspNetCore.Components.ElementReferenceExtensions.FocusAsync
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/event-handling/EventHandlerExample8.razor?highlight=16)]
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Specify delegate event handlers in Razor component markup with [`@on{DOM EVENT}="{DELEGATE}"`](xref:mvc/views/razor#onevent) Razor syntax:
 
@@ -512,9 +512,9 @@ Call <xref:Microsoft.AspNetCore.Components.ElementReferenceExtensions.FocusAsync
 
 [!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/event-handling/EventHandlerExample8.razor?highlight=16)]
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Specify delegate event handlers in Razor component markup with [`@on{DOM EVENT}="{DELEGATE}"`](xref:mvc/views/razor#onevent) Razor syntax:
 
@@ -680,4 +680,4 @@ In the following example, selecting the checkbox prevents click events from the 
 
 [!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/event-handling/EventHandlerExample7.razor?highlight=4,15-16)]
 
-::: moniker-end
+:::moniker-end

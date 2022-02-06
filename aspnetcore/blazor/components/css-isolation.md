@@ -1,11 +1,11 @@
 ---
 title: ASP.NET Core Blazor CSS isolation
-author: daveabrock
+author: guardrex
 description: Learn how CSS isolation allows you to scope CSS to your components, which can simplify your CSS and avoid collisions with other components or libraries.
 monikerRange: '>= aspnetcore-5.0'
 ms.author: riande
 ms.custom: mvc
-ms.date: 10/20/2020
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/components/css-isolation
 ---
@@ -13,7 +13,7 @@ uid: blazor/components/css-isolation
 
 By [Dave Brock](https://twitter.com/daveabrock)
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 Isolate CSS styles to individual pages, views, and components to reduce or avoid:
 
@@ -77,12 +77,11 @@ h1[b-3xxtam6d07] {
 }
 ```
 
-At build time, a project bundle is created with the convention `{STATIC WEB ASSETS BASE PATH}/Project.lib.scp.css`, where the placeholder `{STATIC WEB ASSETS BASE PATH}` is the static web assets base path.
+At build time, a project bundle is created with the convention `obj/{CONFIGURATION}/{TARGET FRAMEWORK}/scopedcss/projectbundle/{ASSEMBLY NAME}.bundle.scp.css`, where the placeholders are:
 
-If other projects are utilized, such as NuGet packages or [Razor class libraries](xref:blazor/components/class-libraries), the bundled file:
-
-* References the styles using CSS imports.
-* Isn't published as a static web asset of the app that consumes the styles.
+* `{CONFIGURATION}`: The app's build configuration (for example, `Debug`, `Release`).
+* `{TARGET FRAMEWORK}`: The target framework (for example, `net6.0`).
+* `{ASSEMBLY NAME}`: The app's assembly name (for example, `BlazorSample`).
 
 ## Child component support
 
@@ -201,23 +200,25 @@ To opt out of how Blazor publishes and loads scoped files at runtime, use the `D
 </PropertyGroup>
 ```
 
+### Disable CSS isolation
+
+Disable CSS isolation for a project by setting the `<ScopedCssEnabled>` property to `false` in the app's project file:
+
+```xml
+<ScopedCssEnabled>false</ScopedCssEnabled>
+```
+
 ## Razor class library (RCL) support
 
-When a [Razor class library (RCL)](xref:razor-pages/ui-class) provides isolated styles, the `<link>` tag's `href` attribute points to `{STATIC WEB ASSET BASE PATH}/{PACKAGE ID}.bundle.scp.css`, where the placeholders are:
+Isolated styles for components in a NuGet package or [Razor class library (RCL)](xref:razor-pages/ui-class) are automatically bundled:
 
-* `{STATIC WEB ASSET BASE PATH}`: The static web asset base path.
-* `{PACKAGE ID}`: The library's [package ID](/nuget/create-packages/creating-a-package-msbuild#set-properties). The package ID defaults to the project's assembly name if `<PackageId>` isn't specified in the project file.
+* The app uses CSS imports to reference the RCL's bundled styles. For a class library named `ClassLib` and a Blazor app with a `BlazorSample.styles.css` stylesheet, the RCL's stylesheet is imported at the top of the app's stylesheet:
+  
+  ```css
+  @import '_content/ClassLib/ClassLib.bundle.scp.css';
+  ```
 
-In the following example:
-
-* The static web asset base path is `_content/ClassLib`.
-* The class library's assembly name is `ClassLib`.
-
-`wwwroot/index.html` (Blazor WebAssembly) or `Pages/_Layout.cshtml` (Blazor Server):
-
-```html
-<link href="_content/ClassLib/ClassLib.bundle.scp.css" rel="stylesheet">
-```
+* The RCL's bundled styles aren't published as a static web asset of the app that consumes the styles.
 
 For more information on RCLs, see the following articles:
 
@@ -229,9 +230,9 @@ For more information on RCLs, see the following articles:
 * [Razor Pages CSS isolation](xref:razor-pages/index#css-isolation)
 * [MVC CSS isolation](xref:mvc/views/overview#css-isolation)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 CSS isolation simplifies an app's CSS footprint by preventing dependencies on global styles and helps to avoid styling conflicts among components and libraries.
 
@@ -292,12 +293,11 @@ h1[b-3xxtam6d07] {
 }
 ```
 
-At build time, a project bundle is created with the convention `{STATIC WEB ASSETS BASE PATH}/Project.lib.scp.css`, where the placeholder `{STATIC WEB ASSETS BASE PATH}` is the static web assets base path.
+At build time, a project bundle is created with the convention `obj/{CONFIGURATION}/{TARGET FRAMEWORK}/scopedcss/projectbundle/{ASSEMBLY NAME}.bundle.scp.css`, where the placeholders are:
 
-If other projects are utilized, such as NuGet packages or [Razor class libraries](xref:blazor/components/class-libraries), the bundled file:
-
-* References the styles using CSS imports.
-* Isn't published as a static web asset of the app that consumes the styles.
+* `{CONFIGURATION}`: The app's build configuration (for example, `Debug`, `Release`).
+* `{TARGET FRAMEWORK}`: The target framework (for example, `net6.0`).
+* `{ASSEMBLY NAME}`: The app's assembly name (for example, `BlazorSample`).
 
 ## Child component support
 
@@ -416,27 +416,29 @@ To opt out of how Blazor publishes and loads scoped files at runtime, use the `D
 </PropertyGroup>
 ```
 
+### Disable CSS isolation
+
+Disable CSS isolation for a project by setting the `<ScopedCssEnabled>` property to `false` in the app's project file:
+
+```xml
+<ScopedCssEnabled>false</ScopedCssEnabled>
+```
+
 ## Razor class library (RCL) support
 
-When a [Razor class library (RCL)](xref:razor-pages/ui-class) provides isolated styles, the `<link>` tag's `href` attribute points to `{STATIC WEB ASSET BASE PATH}/{PACKAGE ID}.bundle.scp.css`, where the placeholders are:
+Isolated styles for components in a NuGet package or [Razor class library (RCL)](xref:razor-pages/ui-class) are automatically bundled:
 
-* `{STATIC WEB ASSET BASE PATH}`: The static web asset base path.
-* `{PACKAGE ID}`: The class library's [package ID](/nuget/create-packages/creating-a-package-msbuild#set-properties). The package ID defaults to the project's assembly name if `<PackageId>` isn't specified in the library's project file.
+* The app uses CSS imports to reference the RCL's bundled styles. For a class library named `ClassLib` and a Blazor app with a `BlazorSample.styles.css` stylesheet, the RCL's stylesheet is imported at the top of the app's stylesheet:
+  
+  ```css
+  @import '_content/ClassLib/ClassLib.bundle.scp.css';
+  ```
 
-In the following example:
-
-* The static web asset base path is `_content/ClassLib`.
-* The class library's package ID is `ClassLib`.
-
-`wwwroot/index.html` (Blazor WebAssembly) or `Pages_Host.cshtml` (Blazor Server):
-
-```html
-<link href="_content/ClassLib/ClassLib.bundle.scp.css" rel="stylesheet">
-```
+* The RCL's bundled styles aren't published as a static web asset of the app that consumes the styles.
 
 For more information on RCLs, see the following articles:
 
 * <xref:blazor/components/class-libraries>
 * <xref:razor-pages/ui-class>
 
-::: moniker-end
+:::moniker-end

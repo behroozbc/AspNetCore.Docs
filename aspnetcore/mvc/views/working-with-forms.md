@@ -20,7 +20,7 @@ In many cases, HTML Helpers provide an alternative approach to a specific Tag He
 
 ## The Form Tag Helper
 
-The [Form](https://www.w3.org/TR/html401/interact/forms.html) Tag Helper:
+The [Form Tag Helper](xref:Microsoft.AspNetCore.Mvc.TagHelpers.FormTagHelper):
 
 * Generates the HTML [\<FORM>](https://www.w3.org/TR/html401/interact/forms.html) `action` attribute value for a MVC controller action or named route
 
@@ -312,7 +312,7 @@ Generates the following:
 
 With collection properties, `asp-for="CollectionProperty[23].Member"` generates the same name as `asp-for="CollectionProperty[i].Member"` when `i` has the value `23`.
 
-When ASP.NET Core MVC calculates the value of `ModelExpression`, it inspects several sources, including `ModelState`. Consider `<input type="text" asp-for="@Name">`. The calculated `value` attribute is the first non-null value from:
+When ASP.NET Core MVC calculates the value of `ModelExpression`, it inspects several sources, including `ModelState`. Consider `<input type="text" asp-for="Name">`. The calculated `value` attribute is the first non-null value from:
 
 * `ModelState` entry with key "Name".
 * Result of the expression `Model.Name`.
@@ -436,7 +436,7 @@ The following HTML is generated for the `<label>` element:
 <label for="Email">Email Address</label>
 ```
 
-The Label Tag Helper generated the `for` attribute value of "Email", which is the ID associated with the `<input>` element. The Tag Helpers generate consistent `id` and `for` elements so they can be correctly associated. The caption in this sample comes from the `Display` attribute. If the model didn't contain a `Display` attribute, the caption would be the property name of the expression.
+The Label Tag Helper generated the `for` attribute value of "Email", which is the ID associated with the `<input>` element. The Tag Helpers generate consistent `id` and `for` elements so they can be correctly associated. The caption in this sample comes from the `Display` attribute. If the model didn't contain a `Display` attribute, the caption would be the property name of the expression.  To override the default caption, add a caption inside the label tag.
 
 ## The Validation Tag Helpers
 
@@ -486,11 +486,11 @@ When a server side validation error occurs (for example when you have custom ser
 
 The `Validation Summary Tag Helper`  is used to display a summary of validation messages. The `asp-validation-summary` attribute value can be any of the following:
 
-|asp-validation-summary|Validation messages displayed|
-|--- |--- |
-|ValidationSummary.All|Property and model level|
-|ValidationSummary.ModelOnly|Model|
-|ValidationSummary.None|None|
+| asp-validation-summary | Validation messages displayed |
+|------------------------|-------------------------------|
+| `All`                  | Property and model level      |
+| `ModelOnly`            | Model                         |
+| `None`                 | None                          |
 
 ### Sample
 

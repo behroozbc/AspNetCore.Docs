@@ -5,13 +5,13 @@ description: Learn how to use a Content Security Policy (CSP) with ASP.NET Core 
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 05/19/2020
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/security/content-security-policy
 ---
 # Enforce a Content Security Policy for ASP.NET Core Blazor
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 [Cross-Site Scripting (XSS)](xref:security/cross-site-scripting) is a security vulnerability where an attacker places one or more malicious client-side scripts into an app's rendered content. A Content Security Policy (CSP) helps protect against XSS attacks by informing the browser of valid:
 
@@ -19,7 +19,7 @@ uid: blazor/security/content-security-policy
 * Actions taken by a page, specifying permitted URL targets of forms.
 * Plugins that can be loaded.
 
-To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags.
+To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags. For guidance on applying a CSP to an app in C# code at startup, see <xref:blazor/fundamentals/startup#control-headers-in-c-code>.
 
 Policies are evaluated by the browser while a page is loading. The browser inspects the page's sources and determines if they meet the requirements of the content security directives. When policy directives aren't met for a resource, the browser doesn't load the resource. For example, consider a policy that doesn't allow third-party scripts. When a page contains a `<script>` tag with a third-party origin in the `src` attribute, the browser prevents the script from loading.
 
@@ -41,7 +41,7 @@ Minimally, specify the following directives and sources for Blazor apps. Add add
   * Specify `self` to indicate that the app's origin, including the scheme and port number, is a valid source.
   * In a Blazor WebAssembly app:
     * Specify hashes to permit required scripts to load.
-    * Specify `unsafe-eval` to permit the Blazor WebAssembly mono runtime to function.
+    * Specify `unsafe-eval` to permit the Blazor WebAssembly Mono runtime to function.
   * In a Blazor Server app, specify hashes to permit required scripts to load.
 * [style-src](https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/style-src): Indicates valid sources for stylesheets.
   * Specify the `https://stackpath.bootstrapcdn.com/` host source for Bootstrap stylesheets.
@@ -153,13 +153,14 @@ Test and update an app's policy every release.
 
 ## Additional resources
 
+* [Apply a CSP in C# code at startup](xref:blazor/fundamentals/startup#control-headers-in-c-code)
 * [MDN web docs: Content-Security-Policy](https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy)
 * [Content Security Policy Level 2](https://www.w3.org/TR/CSP2/)
 * [Google CSP Evaluator](https://csp-evaluator.withgoogle.com/)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 [Cross-Site Scripting (XSS)](xref:security/cross-site-scripting) is a security vulnerability where an attacker places one or more malicious client-side scripts into an app's rendered content. A Content Security Policy (CSP) helps protect against XSS attacks by informing the browser of valid:
 
@@ -167,7 +168,7 @@ Test and update an app's policy every release.
 * Actions taken by a page, specifying permitted URL targets of forms.
 * Plugins that can be loaded.
 
-To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags.
+To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags. For guidance on applying a CSP to an app in C# code at startup, see <xref:blazor/fundamentals/startup#control-headers-in-c-code>.
 
 Policies are evaluated by the browser while a page is loading. The browser inspects the page's sources and determines if they meet the requirements of the content security directives. When policy directives aren't met for a resource, the browser doesn't load the resource. For example, consider a policy that doesn't allow third-party scripts. When a page contains a `<script>` tag with a third-party origin in the `src` attribute, the browser prevents the script from loading.
 
@@ -304,13 +305,14 @@ Test and update an app's policy every release.
 
 ## Additional resources
 
+* [Apply a CSP in C# code at startup](xref:blazor/fundamentals/startup#control-headers-in-c-code)
 * [MDN web docs: Content-Security-Policy](https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy)
 * [Content Security Policy Level 2](https://www.w3.org/TR/CSP2/)
 * [Google CSP Evaluator](https://csp-evaluator.withgoogle.com/)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 [Cross-Site Scripting (XSS)](xref:security/cross-site-scripting) is a security vulnerability where an attacker places one or more malicious client-side scripts into an app's rendered content. A Content Security Policy (CSP) helps protect against XSS attacks by informing the browser of valid:
 
@@ -318,7 +320,7 @@ Test and update an app's policy every release.
 * Actions taken by a page, specifying permitted URL targets of forms.
 * Plugins that can be loaded.
 
-To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags.
+To apply a CSP to an app, the developer specifies several CSP content security *directives* in one or more `Content-Security-Policy` headers or `<meta>` tags. For guidance on applying a CSP to an app in C# code at startup, see <xref:blazor/fundamentals/startup#control-headers-in-c-code>.
 
 Policies are evaluated by the browser while a page is loading. The browser inspects the page's sources and determines if they meet the requirements of the content security directives. When policy directives aren't met for a resource, the browser doesn't load the resource. For example, consider a policy that doesn't allow third-party scripts. When a page contains a `<script>` tag with a third-party origin in the `src` attribute, the browser prevents the script from loading.
 
@@ -458,8 +460,9 @@ Test and update an app's policy every release.
 
 ## Additional resources
 
+* [Apply a CSP in C# code at startup](xref:blazor/fundamentals/startup#control-headers-in-c-code)
 * [MDN web docs: Content-Security-Policy](https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy)
 * [Content Security Policy Level 2](https://www.w3.org/TR/CSP2/)
 * [Google CSP Evaluator](https://csp-evaluator.withgoogle.com/)
 
-::: moniker-end
+:::moniker-end

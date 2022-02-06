@@ -1,4 +1,4 @@
-#define CORS // Default CREATE P1 PM PE I1 I0 IP CERT CERT2 CERT3 RE CONFIG LOG REB 
+#define Default // Default CREATE P1 PM PE I1 I0 IP CERT CERT2 CERT3 RE CONFIG LOG #i REB 
 // CONFIGB LOGB IWHB DEP R1 LE LF IM SM NR NR2 RP WILD CON OV EPB OP1 OP2 OP3 OP4
 // CB BA CJSON MULTI STREAM XTN AUTH1 AUTH2 AUTH3 AUTH4 CORS CORS2 SWAG SWAG2 
 // FIL2 IHB CHNGR ADDMID
@@ -27,14 +27,14 @@ app.Run();
 #endregion
 #elif CHNGR
 #region snippet_chngr
-var builder = WebApplication.CreateBuilder(args);
-
-// Look for static files in webroot.
-builder.WebHost.UseWebRoot("webroot");
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    // Look for static files in webroot
+    WebRootPath = "webroot"
+});
 
 var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
 
 app.Run();
 #endregion
@@ -207,6 +207,27 @@ app.MapGet("/", () => "Hello World");
 
 app.Run();
 #endregion
+#elif DEPS
+#region snippet_dependencies
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddScoped<SampleService>();
+
+var app = builder.Build();
+
+app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var sampleService = scope.ServiceProvider.GetRequiredService<SampleService>();
+    sampleService.DoSomething();
+}
+
+app.Run();
+#endregion
+class SampleService { public void DoSomething() { } }
 #elif REB  // Read Env Builder
 #region snippet_reb
 var builder = WebApplication.CreateBuilder(args);
@@ -663,23 +684,6 @@ app.MapGet("/html", () => Results.Extensions.Html(@$"<!doctype html>
 app.Run();
 #endregion
 
-#elif AUTH1
-#region snippet_auth1
-using Microsoft.AspNetCore.Authorization;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddAuthorization(o => o.AddPolicy("AdminsOnly", 
-                                  b => b.RequireClaim("admin", "true")));
-
-var app = builder.Build();
-
-app.UseAuthorization();
-
-app.MapGet("/auth", [Authorize] () => "This endpoint requires authorization.");
-
-app.Run();
-#endregion
-
 #elif AUTH2  // This is not a complete/valid sample
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -692,28 +696,6 @@ app.MapGet("/auth", () => "This endpoint requires authorization")
 #endregion
 
 app.Run();
-
-#elif AUTH3
-#region snippet_auth3
-using Microsoft.AspNetCore.Authorization;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddAuthorization(o => o.AddPolicy("AdminsOnly", 
-                                  b => b.RequireClaim("admin", "true")));
-
-var app = builder.Build();
-
-app.UseAuthorization();
-
-app.MapGet("/admin", [Authorize("AdminsOnly")] () => 
-                             "The /admin endpoint is for admins only.");
-
-app.MapGet("/admin2", () => "The /admin2 endpoint is for admins only.")
-   .RequireAuthorization("AdminsOnly");
-
-app.Run();
-#endregion
-
 #elif AUTH4
 using Microsoft.AspNetCore.Authorization;
 
@@ -721,10 +703,10 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 #region snippet_auth4
-app.MapGet("/login", [AllowAnonymous] () => "This endpoint is for admins only.");
+app.MapGet("/login", [AllowAnonymous] () => "This endpoint is for all roles.");
 
 
-app.MapGet("/login2", () => "This endpoint also for admins only.")
+app.MapGet("/login2", () => "This endpoint also for all roles.")
    .AllowAnonymous();
 #endregion
 
@@ -831,34 +813,18 @@ app.MapGet("/skipme", () => "Skipping Swagger.")
 app.Run();
 #endregion
 
-#elif FIL2
-#region snippet_fil2
+#elif FILEUPLOAD
+#region snippet_fileupload
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/upload", async (HttpRequest req) =>
+app.MapPost("/uploadstream", async (IConfiguration config, HttpRequest request) =>
 {
-    if (!req.HasFormContentType)
-    {
-        return Results.BadRequest();
-    }
+    var filePath = Path.Combine(config["StoredFilesPath"], Path.GetRandomFileName());
 
-    var form = await req.ReadFormAsync();
-    var file = form.Files["file"];
-
-    if (file is null)
-    {
-        return Results.BadRequest();
-    }
-
-    var uploads = Path.Combine("uploads", file.FileName);
-    await using var fileStream = File.OpenWrite(uploads);
-    await using var uploadStream = file.OpenReadStream();
-    await uploadStream.CopyToAsync(fileStream);
-
-    return Results.NoContent();
-})
-.Accepts<IFormFile>("multipart/form-data");
+    await using var writeStream = File.Create(filePath);
+    await request.BodyReader.CopyToAsync(writeStream);
+});
 
 app.Run();
 #endregion

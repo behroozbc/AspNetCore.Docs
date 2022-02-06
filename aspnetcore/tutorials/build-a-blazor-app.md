@@ -5,14 +5,14 @@ description: Build a Blazor app step-by-step.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 02/12/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: tutorials/build-a-blazor-app
 zone_pivot_groups: blazor-hosting-models
 ---
 # Build a Blazor todo list app
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 This tutorial shows you how to build and modify a Blazor app. You learn how to:
 
@@ -32,21 +32,21 @@ At the end of this tutorial, you'll have a working todo list app.
 
 Create a new Blazor app named `TodoList` in a command shell:
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 ```dotnetcli
 dotnet new blazorserver -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 ```dotnetcli
 dotnet new blazorwasm -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
 The preceding command creates a folder named `TodoList` with the `-o|--output` option to hold the app. The `TodoList` folder is the *root folder* of the project. Change directories to the `TodoList` folder with the following command:
 
@@ -170,7 +170,7 @@ cd TodoList
 
 1. Add items, edit items, and mark todo items done to test the component.
 
-1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>c</kbd> to stop an app.
+1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>C</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>C</kbd> (macOS) to stop an app.
 
 ## Next steps
 
@@ -187,9 +187,9 @@ Learn about tooling for ASP.NET Core Blazor:
 > [!div class="nextstepaction"]
 > <xref:blazor/tooling>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 This tutorial shows you how to build and modify a Blazor app. You learn how to:
 
@@ -209,21 +209,21 @@ At the end of this tutorial, you'll have a working todo list app.
 
 Create a new Blazor app named `TodoList` in a command shell:
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 ```dotnetcli
 dotnet new blazorserver -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 ```dotnetcli
 dotnet new blazorwasm -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
 The preceding command creates a folder named `TodoList` with the `-o|--output` option to hold the app. The `TodoList` folder is the *root folder* of the project. Change directories to the `TodoList` folder with the following command:
 
@@ -347,7 +347,7 @@ cd TodoList
 
 1. Add items, edit items, and mark todo items done to test the component.
 
-1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>c</kbd> to stop an app.
+1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>C</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>C</kbd> (macOS) to stop an app.
 
 ## Next steps
 
@@ -364,9 +364,9 @@ Learn about tooling for ASP.NET Core Blazor:
 > [!div class="nextstepaction"]
 > <xref:blazor/tooling>
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 This tutorial shows you how to build and modify a Blazor app. You learn how to:
 
@@ -386,21 +386,21 @@ At the end of this tutorial, you'll have a working todo list app.
 
 Create a new Blazor app named `TodoList` in a command shell:
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 ```dotnetcli
 dotnet new blazorserver -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 ```dotnetcli
 dotnet new blazorwasm -o TodoList
 ```
 
-::: zone-end
+:::zone-end
 
 The preceding command creates a folder named `TodoList` with the `-o|--output` option to hold the app. The `TodoList` folder is the *root folder* of the project. Change directories to the `TodoList` folder with the following command:
 
@@ -524,7 +524,7 @@ cd TodoList
 
 1. Add items, edit items, and mark todo items done to test the component.
 
-1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>c</kbd> to stop an app.
+1. When finished, shut down the app in the command shell. Many command shells accept the keyboard command <kbd>Ctrl</kbd>+<kbd>C</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>C</kbd> (macOS) to stop an app.
 
 ## Next steps
 
@@ -541,4 +541,4 @@ Learn about tooling for ASP.NET Core Blazor:
 > [!div class="nextstepaction"]
 > <xref:blazor/tooling>
 
-::: moniker-end
+:::moniker-end

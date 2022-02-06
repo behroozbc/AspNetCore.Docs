@@ -3,6 +3,7 @@ title: Part 3, scaffolded Razor Pages
 author: rick-anderson
 description: Part 3 of tutorial series on Razor Pages.
 ms.author: riande
+monikerRange: '>= aspnetcore-3.1'
 ms.date: 09/25/2020
 ms.custom: contperf-fy21q2
 no-loc: [Home, Privacy, Index, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
@@ -15,7 +16,7 @@ By [Rick Anderson](https://twitter.com/RickAndMSFT)
 
 This tutorial examines the Razor Pages created by scaffolding in the [previous tutorial](xref:tutorials/razor-pages/model).
 
-::: moniker range="< aspnetcore-6.0"
+:::moniker range="< aspnetcore-6.0"
 
 ## The Create, Delete, Details, and Edit pages
 
@@ -44,7 +45,7 @@ Examine the *Pages/Movies/Index.cshtml* Razor Page:
 
 [!code-cshtml[](razor-pages-start/snapshot_sample3/RazorPagesMovie30/Pages/Movies/Index.cshtml)]
 
-Razor can transition from HTML into C# or into Razor-specific markup. When an `@` symbol is followed by a [Razor reserved keyword](xref:mvc/views/razor#razor-reserved-keywords), it transitions into Razor-specific markup, otherwise it transitions into HTML.
+Razor can transition from HTML into C# or into Razor-specific markup. When an `@` symbol is followed by a [Razor reserved keyword](xref:mvc/views/razor#razor-reserved-keywords), it transitions into Razor-specific markup, otherwise it transitions into C#.
 
 ### The @page directive
 
@@ -204,9 +205,9 @@ For more information on Tag Helpers such as `<form method="post">`, see [Tag Hel
 > [Previous: Add a model](xref:tutorials/razor-pages/model)
 > [Next: Work with a database](xref:tutorials/razor-pages/sql)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 <!-- Make a copy of the current project at tutorials/razor-pages/razor-pages-start/snapshot_v6 -->
 ## The Create, Delete, Details, and Edit pages
 
@@ -395,4 +396,4 @@ For more information on Tag Helpers such as `<form method="post">`, see [Tag Hel
 > [Previous: Add a model](xref:tutorials/razor-pages/model)
 > [Next: Work with a database](xref:tutorials/razor-pages/sql)
 
-::: moniker-end
+:::moniker-end

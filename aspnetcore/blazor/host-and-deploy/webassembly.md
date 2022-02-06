@@ -5,13 +5,13 @@ description: Learn how to host and deploy a Blazor app using ASP.NET Core, Conte
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 01/12/2021
+ms.date: 01/13/2022
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/host-and-deploy/webassembly
 ---
 # Host and deploy ASP.NET Core Blazor WebAssembly
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 With the [Blazor WebAssembly hosting model](xref:blazor/hosting-models#blazor-webassembly):
 
@@ -25,9 +25,11 @@ The following deployment strategies are supported:
 
 ## Ahead-of-time (AOT) compilation
 
-Blazor WebAssembly supports [ahead-of-time (AOT) compilation](/dotnet/standard/glossary#aot), where you can compile your .NET code directly into WebAssembly. AOT compilation results in runtime performance improvements at the expense of a larger app size.
+Blazor WebAssembly supports ahead-of-time (AOT) compilation, where you can compile your .NET code directly into WebAssembly. AOT compilation results in runtime performance improvements at the expense of a larger app size.
 
-Without enabling AOT compilation, Blazor WebAssembly apps run on the browser using a .NET Intermediate Language (IL) interpreter implemented in WebAssembly. Because the .NET code is interpreted, apps typically run slower than they would on a server-side [.NET just-in-time (JIT) runtime](/dotnet/standard/glossary#jit). AOT compilation addresses this performance issue by compiling an app's .NET code directly into WebAssembly for native WebAssembly execution by the browser. The AOT performance improvement can yield dramatic improvements for apps that execute CPU intensive tasks. The drawback to using AOT compilation is that AOT-compiled apps are generally larger than their IL-interpreted counterparts, so they usually take longer to download to the client when first requested.
+Without enabling AOT compilation, Blazor WebAssembly apps run on the browser using a .NET Intermediate Language (IL) interpreter implemented in WebAssembly. Because the .NET code is interpreted, apps typically run slower than they would on a server-side [.NET just-in-time (JIT) runtime](/dotnet/standard/glossary#jit). AOT compilation addresses this performance issue by compiling an app's .NET code directly into WebAssembly for native WebAssembly execution by the browser. The AOT performance improvement can yield dramatic improvements for apps that execute CPU-intensive tasks. The drawback to using AOT compilation is that AOT-compiled apps are generally larger than their IL-interpreted counterparts, so they usually take longer to download to the client when first requested.
+
+For guidance on installing the .NET WebAssembly build tools, see <xref:blazor/tooling#net-webassembly-build-tools>.
 
 To enable WebAssembly AOT compilation, add the `<RunAOTCompilation>` property set to `true` to the Blazor WebAssembly app's project file:
 
@@ -45,131 +47,25 @@ dotnet publish -c Release
 
 WebAssembly AOT compilation is only performed when the project is published. AOT compilation isn't used when the project is run during development (`Development` environment) because AOT compilation usually takes several minutes on small projects and potentially much longer for larger projects. Reducing the build time for AOT compilation is under development for future releases of ASP.NET Core.
 
-The size of an AOT-compiled Blazor WebAssembly app is generally larger than the size of the app if compiled into .NET IL. Although the size difference depends on the app, most AOT-compiled apps are about twice the size of their IL-compiled versions. This means that using AOT compilation trades off load time performance for runtime performance. Whether this tradeoff is worth using AOT compilation depends on your app. Blazor WebAssembly apps that are CPU intensive generally benefit the most from AOT compilation.
+The size of an AOT-compiled Blazor WebAssembly app is generally larger than the size of the app if compiled into .NET IL:
+
+* Although the size difference depends on the app, most AOT-compiled apps are about twice the size of their IL-compiled versions. This means that using AOT compilation trades off load-time performance for runtime performance. Whether this tradeoff is worth using AOT compilation depends on your app. Blazor WebAssembly apps that are CPU intensive generally benefit the most from AOT compilation.
+
+* The larger size of an AOT-compiled app is due to two conditions:
+
+  * More code is required to represent high-level .NET IL instructions in native WebAssembly.
+  * AOT does ***not*** trim out managed DLLs when the app is published. Blazor requires the DLLs for reflection metadata and to support certain .NET runtime features. Requiring the DLLs on the client increases the download size but provides a more compatible .NET experience.
+
+> [!NOTE]
+> For [Mono](https://github.com/mono/mono)/WebAssembly MSBuild properties and targets, see [`WasmApp.targets` (dotnet/runtime GitHub repository)](https://github.com/dotnet/runtime/blob/main/src/mono/wasm/build/WasmApp.targets). Official documentation for common MSBuild properties is planned per [Document blazor msbuild configuration options (dotnet/docs #27395)](https://github.com/dotnet/docs/issues/27395).
 
 ## Runtime relinking
 
 One of the largest parts of a Blazor WebAssembly app is the WebAssembly-based .NET runtime (`dotnet.wasm`) that the browser must download when the app is first accessed by a user's browser. Relinking the .NET WebAssembly runtime trims unused runtime code and thus improves download speed.
 
-Runtime relinking is performed automatically when you publish an app. The size reduction is particularly dramatic when disabling globalization. For more information, see <xref:blazor/globalization-localization>.
+Runtime relinking requires installation of the .NET WebAssembly build tools. For more information, see <xref:blazor/tooling#net-webassembly-build-tools>.
 
-## Native dependencies support
-
-Blazor WebAssembly apps can use native dependencies built to run on WebAssembly. You can statically link native dependencies into the .NET WebAssembly runtime using the .NET WebAssembly build tools, the same tools used to [ahead-of-time (AOT) compile](#ahead-of-time-aot-compilation) a Blazor app to WebAssembly or to [relink the runtime to remove unused features](#runtime-relinking).
-
-The .NET WebAssembly build tools are based on [Emscripten](https://emscripten.org/), a compiler toolchain for the web platform. To install the .NET WebAssembly build tools, use either of the following approaches:
-
-* Select the optional component in the Visual Studio installer.
-* Run `dotnet workload install wasm-tools` from an administrative command prompt.
-
-Add native dependencies to a Blazor WebAssembly app by adding `NativeFileReference` items in the app's project file. When the project is built, each `NativeFileReference` is passed to Emscripten by the .NET WebAssembly build tools so that they are compiled and linked into the runtime. Next, [`p/invoke`](/dotnet/standard/native-interop/pinvoke) into the native code from the app's .NET code.
-
-Generally, any portable native code can be used as a native dependency with Blazor WebAssembly. You can add native dependencies to C/C++ code or code previously compiled using Emscripten:
-
-* Object files (`.o`)
-* Archive files (`.a`)
-* Bitcode (`.bc`)
-* Standalone WebAssembly modules (`.wasm`)
-
-Prebuilt dependencies typically must be built using the same version of Emscripten used to build the .NET WebAssembly runtime.
-
-### Use native code
-
-Add a simple native C function to a Blazor WebAssembly app:
-
-1. Create a new Blazor WebAssembly project.
-1. Add a `Test.c` file to the project.
-1. Add a C function in `Test.c` for computing factorials:
-
-   ```c
-   int fact(int n)
-   {
-       if (n == 0) return 1;
-       return n * fact(n - 1);
-   }
-   ```
-
-1. Add a `NativeFileReference` for `Test.c` in the app's project file:
-
-   ```xml
-   <ItemGroup>
-     <NativeFileReference Include="Test.c" />
-   </ItemGroup>
-   ```
-
-1. In a Razor component (`.razor`), add a <xref:System.Runtime.InteropServices.DllImportAttribute> for the `fact` function in the generated `Test` library and call the `fact` method from .NET code in the component:
-
-   ```razor
-   @using System.Runtime.InteropServices
-
-   <p>@fact(3)</p>
-
-   @code {
-       [DllImport("Test")]
-       static extern int fact(int n);
-   }
-   ```
-
-When you build the app with the .NET WebAssembly build tools installed, the native C code is compiled and linked into the .NET WebAssembly runtime (`dotnet.wasm`). Compiling and linking may take a few minutes. After the app is built, run the app to see the rendered factorial value.
-
-> [!NOTE]
-> During the 6.0 preview release period, you may receive a build error on subsequent builds saying that the output assembly is being used by another process. This is a known issue that will be addressed for the .NET 6 general release. To workaround the issue, rebuild the project a second time.
-
-### Use libraries
-
-NuGet packages can contain native dependencies for use on WebAssembly. These libraries and their native functionality are then available to any Blazor WebAssembly app. The files for the native dependencies should be built for WebAssembly and packaged in the `browser-wasm` [architecture-specific folder](/nuget/create-packages/supporting-multiple-target-frameworks#architecture-specific-folders). WebAssembly-specific dependencies aren't referenced automatically and must be referenced manually as `NativeFileReference`s. Package authors can choose to add the native references by including a `.props` file in the package with the references.
-
-[SkiaSharp](https://github.com/mono/SkiaSharp) is a cross-platform 2D graphics library for .NET based on the native [Skia graphics library](https://skia.org/), and it now has preview support for Blazor WebAssembly.
-
-> [!WARNING]
-> [SkiaSharp](https://github.com/mono/SkiaSharp) and the [Skia graphics library](https://skia.org/) aren't owned or maintained by Microsoft. The demonstration example in this section is unsupported by Microsoft and shouldn't be used in production.
-
-To use SkiaSharp in a Blazor WebAssembly app:
-
-1. Add a package reference to the [`SkiaSharp.Views.Blazor`](https://www.nuget.org/packages/SkiaSharp.Views.Blazor) package in a Blazor WebAssembly project. Use Visual Studio's process for adding packages to an app (**Manage NuGet Packages**) or execute the [`dotnet add package`](/dotnet/core/tools/dotnet-add-package) command in a command shell:
-
-   ```dotnetcli
-   dotnet add package –-prerelease SkiaSharp.Views.Blazor
-   ```
-
-   > [!NOTE]
-   > At the time of writing, the [`SkiaSharp.Views.Blazor`](https://www.nuget.org/packages/SkiaSharp.Views.Blazor) package is a prerelease NuGet package not intended for production use.
-
-1. Add a `SKCanvasView` component to the app with the following:
-
-   * `SkiaSharp` and `SkiaSharp.Views.Blazor` namespaces.
-   * Logic to draw in the SkiaSharp Canvas View component (`SKCanvasView`).
-
-   `Pages/NativeDependencyExample.razor`:
-
-   ```razor
-   @page "/native-dependency-example"
-   @using SkiaSharp
-   @using SkiaSharp.Views.Blazor
-
-   <PageTitle>Native dependency</PageTitle>
-
-   <h1>Native dependency example with SkiaSharp</h1>
-
-   <SKCanvasView OnPaintSurface="OnPaintSurface" />
-
-   @code {
-       private void OnPaintSurface(SKPaintSurfaceEventArgs e)
-       {
-           var canvas = e.Surface.Canvas;
-           canvas.Clear(SKColors.White);
-           using var paint = new SKPaint
-           {
-               Color = SKColors.Black,
-               IsAntialias = true,
-               TextSize = 24
-           };
-           canvas.DrawText("SkiaSharp", 0, 24, paint);
-       }
-   }
-   ```
-
-1. Build the app, which might take several minutes. Run the app and navigate to the `NativeDependencyExample` component at `/native-dependency-example`.
+With the .NET WebAssembly build tools installed, runtime relinking is performed automatically when an app is **published** in the `Release` configuration. The size reduction is particularly dramatic when disabling globalization. For more information, see <xref:blazor/globalization-localization#invariant-globalization>.
 
 ## Customize how boot resources are loaded
 
@@ -506,15 +402,12 @@ When a Blazor project is published, a `web.config` file is created with the foll
   * Serve the sub-directory where the app's static assets reside (`wwwroot/{PATH REQUESTED}`).
   * Create SPA fallback routing so that requests for non-file assets are redirected to the app's default document in its static assets folder (`wwwroot/index.html`).
   
-#### Use a custom web.config
+#### Use a custom `web.config`
 
-To use a custom `web.config` file, place the custom `web.config` file at the root of the project folder. Configure the project to publish IIS-specific assets using `PublishIISAssets` in the app's project file and publish the project:
+To use a custom `web.config` file:
 
-```xml
-<PropertyGroup>
-  <PublishIISAssets>true</PublishIISAssets>
-</PropertyGroup>
-```
+1. Place the custom `web.config` file in the project's root folder. For a hosted Blazor WebAssembly solution, place the file in the **`Server`** project's folder.
+1. Publish the project. For a hosted Blazor WebAssembly solution, publish the solution from the **`Server`** project. For more information, see <xref:blazor/host-and-deploy/index>.
 
 #### Install the URL Rewrite Module
 
@@ -776,6 +669,136 @@ The `--urls` argument sets the IP addresses or host addresses with ports and pro
   --urls=http://127.0.0.1:0
   ```
 
+## Hosted deployment on Linux (Nginx)
+
+Configure the app with <xref:Microsoft.AspNetCore.Builder.ForwardedHeadersOptions> to forward the `X-Forwarded-For` and `X-Forwarded-Proto` headers by following the guidance in <xref:host-and-deploy/proxy-load-balancer>.
+
+For more information on setting the app's base path, including sub-app path configuration, see <xref:blazor/host-and-deploy/index#app-base-path>.
+
+Follow the guidance for an [ASP.NET Core SignalR app](xref:signalr/scale#linux-with-nginx) with the following changes:
+
+* Remove the configuration for proxy buffering (`proxy_buffering off;`) because the setting only applies to [Server-Sent Events (SSE)](https://developer.mozilla.org/docs/Web/API/Server-sent_events), which aren't relevant to Blazor app client-server interactions.
+* Change the `location` path from `/hubroute` (`location /hubroute { ... }`) to the sub-app path `/{PATH}` (`location /{PATH} { ... }`), where the `{PATH}` placeholder is the sub-app path.
+
+  The following example configures the server for an app that responds to requests at the root path `/`:
+
+  ```
+  http {
+      server {
+          ...
+          location / {
+              ...
+          }
+      }
+  }
+  ```
+
+  The following example configures the sub-app path of `/blazor`:
+
+  ```
+  http {
+      server {
+          ...
+          location /blazor {
+              ...
+          }
+      }
+  }
+  ```
+
+For more information and configuration guidance, consult the following resources:
+
+* <xref:host-and-deploy/linux-nginx>
+* Nginx documentation:
+  * [NGINX as a WebSocket Proxy](https://www.nginx.com/blog/websocket-nginx/)
+  * [WebSocket proxying](http://nginx.org/docs/http/websocket.html)
+* Developers on non-Microsoft support forums:
+  * [Stack Overflow (tag: `blazor`)](https://stackoverflow.com/questions/tagged/blazor)
+  * [ASP.NET Core Slack Team](http://tattoocoder.com/aspnet-slack-sign-up/)
+  * [Blazor Gitter](https://gitter.im/aspnet/Blazor)
+
+<!-- HOLD FOR FUTURE WORK
+
+## Hosted deployment on Linux (Apache)
+
+Configure the app with <xref:Microsoft.AspNetCore.Builder.ForwardedHeadersOptions> to forward the `X-Forwarded-For` and `X-Forwarded-Proto` headers by following the guidance in <xref:host-and-deploy/proxy-load-balancer>.
+
+For more information on setting the app's base path, including sub-app path configuration, see <xref:blazor/host-and-deploy/index#app-base-path>.
+
+The following example hosts the app at a root URL (no sub-app path):
+
+```
+<VirtualHost *:*>
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+</VirtualHost>
+
+<VirtualHost *:80>
+    ProxyRequests     On
+    ProxyPreserveHost On
+    ProxyPass         / http://localhost:5000/
+    ProxyPassReverse  / http://localhost:5000/
+    ProxyPassMatch    ^/_blazor/(.*) http://localhost:5000/_blazor/$1
+    ProxyPass         /_blazor ws://localhost:5000/_blazor
+    ServerName        www.example.com
+    ServerAlias       *.example.com
+    ErrorLog          ${APACHE_LOG_DIR}helloapp-error.log
+    CustomLog         ${APACHE_LOG_DIR}helloapp-access.log common
+</VirtualHost>
+```
+
+To configure the server to host the app at a sub-app path, the `{PATH}` placeholder in the following entires is the sub-app path:
+
+```
+<VirtualHost *:*>
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+</VirtualHost>
+
+<VirtualHost *:80>
+    ProxyRequests     On
+    ProxyPreserveHost On
+    ProxyPass         / http://localhost:5000/{PATH}
+    ProxyPassReverse  / http://localhost:5000/{PATH}
+    ProxyPassMatch    ^/_blazor/(.*) http://localhost:5000/{PATH}/_blazor/$1
+    ProxyPass         /_blazor ws://localhost:5000/{PATH}/_blazor
+    ServerName        www.example.com
+    ServerAlias       *.example.com
+    ErrorLog          ${APACHE_LOG_DIR}helloapp-error.log
+    CustomLog         ${APACHE_LOG_DIR}helloapp-access.log common
+</VirtualHost>
+```
+
+For an app that responds to requests at `/blazor`:
+
+```
+<VirtualHost *:*>
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+</VirtualHost>
+
+<VirtualHost *:80>
+    ProxyRequests     On
+    ProxyPreserveHost On
+    ProxyPass         / http://localhost:5000/blazor
+    ProxyPassReverse  / http://localhost:5000/blazor
+    ProxyPassMatch    ^/_blazor/(.*) http://localhost:5000/blazor/_blazor/$1
+    ProxyPass         /_blazor ws://localhost:5000/blazor/_blazor
+    ServerName        www.example.com
+    ServerAlias       *.example.com
+    ErrorLog          ${APACHE_LOG_DIR}helloapp-error.log
+    CustomLog         ${APACHE_LOG_DIR}helloapp-access.log common
+</VirtualHost>
+```
+
+For more information and configuration guidance, consult the following resources:
+
+* <xref:host-and-deploy/linux-apache>
+* [Apache documentation](https://httpd.apache.org/docs/current/mod/mod_proxy.html)
+* Developers on non-Microsoft support forums:
+  * [Stack Overflow (tag: `blazor`)](https://stackoverflow.com/questions/tagged/blazor)
+  * [ASP.NET Core Slack Team](http://tattoocoder.com/aspnet-slack-sign-up/)
+  * [Blazor Gitter](https://gitter.im/aspnet/Blazor)
+
+-->
+
 ## Configure the Trimmer
 
 Blazor performs Intermediate Language (IL) trimming on each Release build to remove unnecessary IL from the output assemblies. For more information, see <xref:blazor/host-and-deploy/configure-trimmer>.
@@ -851,23 +874,40 @@ In the project file, the script is run after publishing the app:
 > [!NOTE]
 > When renaming and lazy loading the same assemblies, see the guidance in <xref:blazor/webassembly-lazy-load-assemblies#onnavigateasync-events-and-renamed-assembly-files>.
 
+## Prior deployment corruption
+
+Typically on deployment:
+
+* Only the files that have changed are replaced, which usually results in a faster deployment.
+* Existing files that aren't part of the new deployment are left in place for use by the new deployment.
+
+In rare cases, lingering files from a prior deployment can corrupt a new deployment. Completely deleting the existing deployment (or locally-published app prior to deployment) may resolve the issue with a corrupted deployment. Often, deleting the existing deployment ***once*** is sufficient to resolve the problem, including for a DevOps build and deploy pipeline.
+
+If you determine that clearing a prior deployment is always required when a DevOps build and deploy pipeline is in use, you can temporarily add a step to the build pipeline to delete the prior deployment for each new deployment until you troubleshoot the exact cause of the corruption.
+
 ## Resolve integrity check failures
 
-When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. It uses information in the `blazor.boot.json` file to specify the expected SHA-256 hash values for `.dll`, `.wasm`, and other files. This is beneficial for the following reasons:
+When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. Blazor sends SHA-256 hash values for DLL (`.dll`), WebAssembly (`.wasm`), and other files in the `blazor.boot.json` file, which isn't cached on clients. The file hashes of cached files are compared to the hashes in the `blazor.boot.json` file. For cached files with a matching hash, Blazor uses the cached files. Otherwise, files are requested from the server. After a file is downloaded, its hash is checked again for integrity validation. An error is generated by the browser if any downloaded file's integrity check fails.
 
-* It ensures you don't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files could lead to undefined behavior.
-* It ensures the user's browser never caches inconsistent or invalid responses, which could prevent them from starting the app even if they manually refresh the page.
-* It makes it safe to cache the responses and not even check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete much faster.
+Blazor's algorithm for managing file integrity:
 
-If your web server returns responses that don't match the expected SHA-256 hashes, you will see an error similar to the following appear in the browser's developer console:
+* Ensures that the app doesn't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files can result in a malfunctioning app.
+* Ensures the user's browser never caches inconsistent or invalid responses, which can prevent the app from starting even if the user manually refreshes the page.
+* Makes it safe to cache the responses and not check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete faster.
+
+If the web server returns responses that don't match the expected SHA-256 hashes, an error similar to the following example appears in the browser's developer console:
 
 > Failed to find a valid digest in the 'integrity' attribute for resource 'https://myapp.example.com/\_framework/MyBlazorApp.dll' with computed SHA-256 integrity 'IIa70iwvmEg5WiDV17OpQ5eCztNYqL186J56852RpJY='. The resource has been blocked.
 
-In most cases, this is *not* a problem with integrity checking itself. Instead, it means there is some other problem, and the integrity check is warning you about that other problem.
+In most cases, the warning doesn't indicate a problem with integrity checking. Instead, the warning usually means that some other problem exists.
+
+For Blazor WebAssembly's boot reference source, see [the `Boot.WebAssembly.ts` file in the `dotnet/aspnetcore` GitHub repository](https://github.com/dotnet/aspnetcore/blob/main/src/Components/Web.JS/src/Boot.WebAssembly.ts).
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ### Diagnosing integrity problems
 
-When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of your boot resources (for example, `.dll`, `.wasm`, and other files) at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
+When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of boot resources at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
 
 Common reasons why this fails are:
 
@@ -876,6 +916,9 @@ Common reasons why this fails are:
   * If you or build tools manually modify the build output.
   * If some aspect of the deployment process modified the files. For example if you use a Git-based deployment mechanism, bear in mind that Git transparently converts Windows-style line endings to Unix-style line endings if you commit files on Windows and check them out on Linux. Changing file line endings change the SHA-256 hashes. To avoid this problem, consider [using `.gitattributes` to treat build artifacts as `binary` files](https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes).
   * The web server modifies the file contents as part of serving them. For example, some content distribution networks (CDNs) automatically attempt to [minify](xref:client-side/bundling-and-minification#minification) HTML, thereby modifying it. You may need to disable such features.
+* The `blazor.boot.json` file fails to load properly or is improperly cached on the client. Common causes include either of the following: 
+  * Misconfigured or malfunctioning custom developer code.
+  * One or more misconfigured intermediate caching layers.
 
 To diagnose which of these applies in your case:
 
@@ -892,7 +935,7 @@ If you confirm that the server is returning plausibly correct data, there must b
 
 ### Troubleshoot integrity PowerShell script
 
-Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 6 as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 6.2.7.
+Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 7 or later as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 7.2.0.
 
 The script checks the files in the `publish` folder and downloaded from the deployed app to detect issues in the different manifests that contain integrity hashes. These checks should detect the most common problems:
 
@@ -906,9 +949,15 @@ Invoke the script with the following command in a PowerShell command shell:
 .\integrity.ps1 {BASE URL} {PUBLISH OUTPUT FOLDER}
 ```
 
+In the following example, the script is executed on a locally-running app at `https://localhost:5001/`:
+
+```powershell
+.\integrity.ps1 https://localhost:5001/ C:\TestApps\BlazorSample\bin\Release\net6.0\publish\
+```
+
 Placeholders:
 
-* `{BASE URL}`: The URL of the deployed app.
+* `{BASE URL}`: The URL of the deployed app. A trailing slash (`/`) is required.
 * `{PUBLISH OUTPUT FOLDER}`: The path to the app's `publish` folder or location where the app is published for deployment.
 
 > [!NOTE]
@@ -922,8 +971,8 @@ Placeholders:
 >
 > Comparing the checksum of a file to a valid checksum value doesn't guarantee file safety, but modifying a file in a way that maintains a checksum value isn't trivial for malicious users. Therefore, checksums are useful as a general security approach. Compare the checksum of the local `integrity.ps1` file to one of the following values:
 >
-> * SHA256: `6b0dc7aba5d8489136bb2969036432597615b11b4e432535e173ca077a0449c4`
-> * MD5: `f0c800a4c72604bd47f3c19f5f0bb4f4`
+> * SHA256: `32c24cb667d79a701135cb72f6bae490d81703323f61b8af2c7e5e5dc0f0c2bb`
+> * MD5: `9cee7d7ec86ee809a329b5406fbf21a8`
 >
 > Obtain the file's checksum on Windows OS with the following command. Provide the path and file name for the `{PATH AND FILE NAME}` placeholder and indicate the type of checksum to produce for the `{SHA512|MD5}` placeholder, either `SHA256` or `MD5`:
 >
@@ -968,9 +1017,9 @@ To disable integrity checking, remove the `integrity` parameter by changing the 
 
 Again, disabling integrity checking means that you lose the safety guarantees offered by integrity checking. For example, there is a risk that if the user's browser is caching the app at the exact moment that you deploy a new version, it could cache some files from the old deployment and some from the new deployment. If that happens, the app becomes stuck in a broken state until you deploy a further update.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 With the [Blazor WebAssembly hosting model](xref:blazor/hosting-models#blazor-webassembly):
 
@@ -1320,15 +1369,20 @@ When a Blazor project is published, a `web.config` file is created with the foll
   * Serve the sub-directory where the app's static assets reside (`wwwroot/{PATH REQUESTED}`).
   * Create SPA fallback routing so that requests for non-file assets are redirected to the app's default document in its static assets folder (`wwwroot/index.html`).
   
-#### Use a custom web.config
+#### Use a custom `web.config`
 
-To use a custom `web.config` file, place the custom `web.config` file at the root of the project folder. Configure the project to publish IIS-specific assets using `PublishIISAssets` in the app's project file and publish the project:
+To use a custom `web.config` file:
 
-```xml
-<PropertyGroup>
-  <PublishIISAssets>true</PublishIISAssets>
-</PropertyGroup>
-```
+1. Place the custom `web.config` file in the project's root folder. For a hosted Blazor WebAssembly solution, place the file in the **`Server`** project's folder.
+1. Set the `<PublishIISAssets>` property to `true` in the project file (`.csproj`). For a hosted Blazor WebAssembly solution, set the property in the **`Server`** project's project file.
+
+   ```xml
+   <PropertyGroup>
+     <PublishIISAssets>true</PublishIISAssets>
+   </PropertyGroup>
+   ```
+
+1. Publish the project. For a hosted Blazor WebAssembly solution, publish the solution from the **`Server`** project. For more information, see <xref:blazor/host-and-deploy/index>.
 
 #### Install the URL Rewrite Module
 
@@ -1665,23 +1719,40 @@ In the project file, the script is run after publishing the app:
 > [!NOTE]
 > When renaming and lazy loading the same assemblies, see the guidance in <xref:blazor/webassembly-lazy-load-assemblies#onnavigateasync-events-and-renamed-assembly-files>.
 
+## Prior deployment corruption
+
+Typically on deployment:
+
+* Only the files that have changed are replaced, which usually results in a faster deployment.
+* Existing files that aren't part of the new deployment are left in place for use by the new deployment.
+
+In rare cases, lingering files from a prior deployment can corrupt a new deployment. Completely deleting the existing deployment (or locally-published app prior to deployment) may resolve the issue with a corrupted deployment. Often, deleting the existing deployment ***once*** is sufficient to resolve the problem, including for a DevOps build and deploy pipeline.
+
+If you determine that clearing a prior deployment is always required when a DevOps build and deploy pipeline is in use, you can temporarily add a step to the build pipeline to delete the prior deployment for each new deployment until you troubleshoot the exact cause of the corruption.
+
 ## Resolve integrity check failures
 
-When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. It uses information in the `blazor.boot.json` file to specify the expected SHA-256 hash values for `.dll`, `.wasm`, and other files. This is beneficial for the following reasons:
+When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. Blazor sends SHA-256 hash values for DLL (`.dll`), WebAssembly (`.wasm`), and other files in the `blazor.boot.json` file, which isn't cached on clients. The file hashes of cached files are compared to the hashes in the `blazor.boot.json` file. For cached files with a matching hash, Blazor uses the cached files. Otherwise, files are requested from the server. After a file is downloaded, its hash is checked again for integrity validation. An error is generated by the browser if any downloaded file's integrity check fails.
 
-* It ensures you don't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files could lead to undefined behavior.
-* It ensures the user's browser never caches inconsistent or invalid responses, which could prevent them from starting the app even if they manually refresh the page.
-* It makes it safe to cache the responses and not even check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete much faster.
+Blazor's algorithm for managing file integrity:
 
-If your web server returns responses that don't match the expected SHA-256 hashes, you will see an error similar to the following appear in the browser's developer console:
+* Ensures that the app doesn't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files can result in a malfunctioning app.
+* Ensures the user's browser never caches inconsistent or invalid responses, which can prevent the app from starting even if the user manually refreshes the page.
+* Makes it safe to cache the responses and not check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete faster.
+
+If the web server returns responses that don't match the expected SHA-256 hashes, an error similar to the following example appears in the browser's developer console:
 
 > Failed to find a valid digest in the 'integrity' attribute for resource 'https://myapp.example.com/\_framework/MyBlazorApp.dll' with computed SHA-256 integrity 'IIa70iwvmEg5WiDV17OpQ5eCztNYqL186J56852RpJY='. The resource has been blocked.
 
-In most cases, this is *not* a problem with integrity checking itself. Instead, it means there is some other problem, and the integrity check is warning you about that other problem.
+In most cases, the warning doesn't indicate a problem with integrity checking. Instead, the warning usually means that some other problem exists.
+
+For Blazor WebAssembly's boot reference source, see [the `Boot.WebAssembly.ts` file in the `dotnet/aspnetcore` GitHub repository](https://github.com/dotnet/aspnetcore/blob/main/src/Components/Web.JS/src/Boot.WebAssembly.ts).
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ### Diagnosing integrity problems
 
-When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of your boot resources (for example, `.dll`, `.wasm`, and other files) at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
+When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of your boot resources at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
 
 Common reasons why this fails are:
 
@@ -1690,6 +1761,9 @@ Common reasons why this fails are:
   * If you or build tools manually modify the build output.
   * If some aspect of the deployment process modified the files. For example if you use a Git-based deployment mechanism, bear in mind that Git transparently converts Windows-style line endings to Unix-style line endings if you commit files on Windows and check them out on Linux. Changing file line endings change the SHA-256 hashes. To avoid this problem, consider [using `.gitattributes` to treat build artifacts as `binary` files](https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes).
   * The web server modifies the file contents as part of serving them. For example, some content distribution networks (CDNs) automatically attempt to [minify](xref:client-side/bundling-and-minification#minification) HTML, thereby modifying it. You may need to disable such features.
+* The `blazor.boot.json` file fails to load properly or is improperly cached on the client. Common causes include either of the following: 
+  * Misconfigured or malfunctioning custom developer code.
+  * One or more misconfigured intermediate caching layers.
 
 To diagnose which of these applies in your case:
 
@@ -1706,7 +1780,7 @@ If you confirm that the server is returning plausibly correct data, there must b
 
 ### Troubleshoot integrity PowerShell script
 
-Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 6 as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 6.2.7.
+Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 7 or later as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 7.2.0.
 
 The script checks the files in the `publish` folder and downloaded from the deployed app to detect issues in the different manifests that contain integrity hashes. These checks should detect the most common problems:
 
@@ -1720,9 +1794,15 @@ Invoke the script with the following command in a PowerShell command shell:
 .\integrity.ps1 {BASE URL} {PUBLISH OUTPUT FOLDER}
 ```
 
+In the following example, the script is executed on a locally-running app at `https://localhost:5001/`:
+
+```powershell
+.\integrity.ps1 https://localhost:5001/ C:\TestApps\BlazorSample\bin\Release\net6.0\publish\
+```
+
 Placeholders:
 
-* `{BASE URL}`: The URL of the deployed app.
+* `{BASE URL}`: The URL of the deployed app. A trailing slash (`/`) is required.
 * `{PUBLISH OUTPUT FOLDER}`: The path to the app's `publish` folder or location where the app is published for deployment.
 
 > [!NOTE]
@@ -1736,8 +1816,8 @@ Placeholders:
 >
 > Comparing the checksum of a file to a valid checksum value doesn't guarantee file safety, but modifying a file in a way that maintains a checksum value isn't trivial for malicious users. Therefore, checksums are useful as a general security approach. Compare the checksum of the local `integrity.ps1` file to one of the following values:
 >
-> * SHA256: `6b0dc7aba5d8489136bb2969036432597615b11b4e432535e173ca077a0449c4`
-> * MD5: `f0c800a4c72604bd47f3c19f5f0bb4f4`
+> * SHA256: `32c24cb667d79a701135cb72f6bae490d81703323f61b8af2c7e5e5dc0f0c2bb`
+> * MD5: `9cee7d7ec86ee809a329b5406fbf21a8`
 >
 > Obtain the file's checksum on Windows OS with the following command. Provide the path and file name for the `{PATH AND FILE NAME}` placeholder and indicate the type of checksum to produce for the `{SHA512|MD5}` placeholder, either `SHA256` or `MD5`:
 >
@@ -1782,9 +1862,9 @@ To disable integrity checking, remove the `integrity` parameter by changing the 
 
 Again, disabling integrity checking means that you lose the safety guarantees offered by integrity checking. For example, there is a risk that if the user's browser is caching the app at the exact moment that you deploy a new version, it could cache some files from the old deployment and some from the new deployment. If that happens, the app becomes stuck in a broken state until you deploy a further update.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 With the [Blazor WebAssembly hosting model](xref:blazor/hosting-models#blazor-webassembly):
 
@@ -2134,15 +2214,20 @@ When a Blazor project is published, a `web.config` file is created with the foll
   * Serve the sub-directory where the app's static assets reside (`wwwroot/{PATH REQUESTED}`).
   * Create SPA fallback routing so that requests for non-file assets are redirected to the app's default document in its static assets folder (`wwwroot/index.html`).
   
-#### Use a custom web.config
+#### Use a custom `web.config`
 
-To use a custom `web.config` file, place the custom `web.config` file at the root of the project folder. Configure the project to publish IIS-specific assets using `PublishIISAssets` in the app's project file and publish the project:
+To use a custom `web.config` file:
 
-```xml
-<PropertyGroup>
-  <PublishIISAssets>true</PublishIISAssets>
-</PropertyGroup>
-```
+1. Place the custom `web.config` file in the project's root folder. For a hosted Blazor WebAssembly solution, place the file in the **`Server`** project's folder.
+1. Set the `<PublishIISAssets>` property to `true` in the project file (`.csproj`). For a hosted Blazor WebAssembly solution, set the property in the **`Server`** project's project file.
+
+   ```xml
+   <PropertyGroup>
+     <PublishIISAssets>true</PublishIISAssets>
+   </PropertyGroup>
+   ```
+
+1. Publish the project. For a hosted Blazor WebAssembly solution, publish the solution from the **`Server`** project. For more information, see <xref:blazor/host-and-deploy/index>.
 
 #### Install the URL Rewrite Module
 
@@ -2479,23 +2564,40 @@ In the project file, the script is run after publishing the app:
 > [!NOTE]
 > When renaming and lazy loading the same assemblies, see the guidance in <xref:blazor/webassembly-lazy-load-assemblies#onnavigateasync-events-and-renamed-assembly-files>.
 
+## Prior deployment corruption
+
+Typically on deployment:
+
+* Only the files that have changed are replaced, which usually results in a faster deployment.
+* Existing files that aren't part of the new deployment are left in place for use by the new deployment.
+
+In rare cases, lingering files from a prior deployment can corrupt a new deployment. Completely deleting the existing deployment (or locally-published app prior to deployment) may resolve the issue with a corrupted deployment. Often, deleting the existing deployment ***once*** is sufficient to resolve the problem, including for a DevOps build and deploy pipeline.
+
+If you determine that clearing a prior deployment is always required when a DevOps build and deploy pipeline is in use, you can temporarily add a step to the build pipeline to delete the prior deployment for each new deployment until you troubleshoot the exact cause of the corruption.
+
 ## Resolve integrity check failures
 
-When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. It uses information in the `blazor.boot.json` file to specify the expected SHA-256 hash values for `.dll`, `.wasm`, and other files. This is beneficial for the following reasons:
+When Blazor WebAssembly downloads an app's startup files, it instructs the browser to perform integrity checks on the responses. Blazor sends SHA-256 hash values for DLL (`.dll`), WebAssembly (`.wasm`), and other files in the `blazor.boot.json` file, which isn't cached on clients. The file hashes of cached files are compared to the hashes in the `blazor.boot.json` file. For cached files with a matching hash, Blazor uses the cached files. Otherwise, files are requested from the server. After a file is downloaded, its hash is checked again for integrity validation. An error is generated by the browser if any downloaded file's integrity check fails.
 
-* It ensures you don't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files could lead to undefined behavior.
-* It ensures the user's browser never caches inconsistent or invalid responses, which could prevent them from starting the app even if they manually refresh the page.
-* It makes it safe to cache the responses and not even check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete much faster.
+Blazor's algorithm for managing file integrity:
 
-If your web server returns responses that don't match the expected SHA-256 hashes, you will see an error similar to the following appear in the browser's developer console:
+* Ensures that the app doesn't risk loading an inconsistent set of files, for example if a new deployment is applied to your web server while the user is in the process of downloading the application files. Inconsistent files can result in a malfunctioning app.
+* Ensures the user's browser never caches inconsistent or invalid responses, which can prevent the app from starting even if the user manually refreshes the page.
+* Makes it safe to cache the responses and not check for server-side changes until the expected SHA-256 hashes themselves change, so subsequent page loads involve fewer requests and complete faster.
+
+If the web server returns responses that don't match the expected SHA-256 hashes, an error similar to the following example appears in the browser's developer console:
 
 > Failed to find a valid digest in the 'integrity' attribute for resource 'https://myapp.example.com/\_framework/MyBlazorApp.dll' with computed SHA-256 integrity 'IIa70iwvmEg5WiDV17OpQ5eCztNYqL186J56852RpJY='. The resource has been blocked.
 
-In most cases, this is *not* a problem with integrity checking itself. Instead, it means there is some other problem, and the integrity check is warning you about that other problem.
+In most cases, the warning doesn't indicate a problem with integrity checking. Instead, the warning usually means that some other problem exists.
+
+For Blazor WebAssembly's boot reference source, see [the `Boot.WebAssembly.ts` file in the `dotnet/aspnetcore` GitHub repository](https://github.com/dotnet/aspnetcore/blob/main/src/Components/Web.JS/src/Boot.WebAssembly.ts).
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
 
 ### Diagnosing integrity problems
 
-When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of your boot resources (for example, `.dll`, `.wasm`, and other files) at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
+When an app is built, the generated `blazor.boot.json` manifest describes the SHA-256 hashes of your boot resources at the time that the build output is produced. The integrity check passes as long as the SHA-256 hashes in `blazor.boot.json` match the files delivered to the browser.
 
 Common reasons why this fails are:
 
@@ -2504,6 +2606,9 @@ Common reasons why this fails are:
   * If you or build tools manually modify the build output.
   * If some aspect of the deployment process modified the files. For example if you use a Git-based deployment mechanism, bear in mind that Git transparently converts Windows-style line endings to Unix-style line endings if you commit files on Windows and check them out on Linux. Changing file line endings change the SHA-256 hashes. To avoid this problem, consider [using `.gitattributes` to treat build artifacts as `binary` files](https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes).
   * The web server modifies the file contents as part of serving them. For example, some content distribution networks (CDNs) automatically attempt to [minify](xref:client-side/bundling-and-minification#minification) HTML, thereby modifying it. You may need to disable such features.
+* The `blazor.boot.json` file fails to load properly or is improperly cached on the client. Common causes include either of the following: 
+  * Misconfigured or malfunctioning custom developer code.
+  * One or more misconfigured intermediate caching layers.
 
 To diagnose which of these applies in your case:
 
@@ -2520,7 +2625,7 @@ If you confirm that the server is returning plausibly correct data, there must b
 
 ### Troubleshoot integrity PowerShell script
 
-Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 6 as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 6.2.7.
+Use the [`integrity.ps1`](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/blazor/host-and-deploy/webassembly/_samples/integrity.ps1?raw=true) PowerShell script to validate a published and deployed Blazor app. The script is provided for PowerShell Core 7 or later as a starting point when the app has integrity issues that the Blazor framework can't identify. Customization of the script might be required for your apps, including if running on version of PowerShell later than version 7.2.0.
 
 The script checks the files in the `publish` folder and downloaded from the deployed app to detect issues in the different manifests that contain integrity hashes. These checks should detect the most common problems:
 
@@ -2534,9 +2639,15 @@ Invoke the script with the following command in a PowerShell command shell:
 .\integrity.ps1 {BASE URL} {PUBLISH OUTPUT FOLDER}
 ```
 
+In the following example, the script is executed on a locally-running app at `https://localhost:5001/`:
+
+```powershell
+.\integrity.ps1 https://localhost:5001/ C:\TestApps\BlazorSample\bin\Release\net6.0\publish\
+```
+
 Placeholders:
 
-* `{BASE URL}`: The URL of the deployed app.
+* `{BASE URL}`: The URL of the deployed app. A trailing slash (`/`) is required.
 * `{PUBLISH OUTPUT FOLDER}`: The path to the app's `publish` folder or location where the app is published for deployment.
 
 > [!NOTE]
@@ -2550,8 +2661,8 @@ Placeholders:
 >
 > Comparing the checksum of a file to a valid checksum value doesn't guarantee file safety, but modifying a file in a way that maintains a checksum value isn't trivial for malicious users. Therefore, checksums are useful as a general security approach. Compare the checksum of the local `integrity.ps1` file to one of the following values:
 >
-> * SHA256: `6b0dc7aba5d8489136bb2969036432597615b11b4e432535e173ca077a0449c4`
-> * MD5: `f0c800a4c72604bd47f3c19f5f0bb4f4`
+> * SHA256: `32c24cb667d79a701135cb72f6bae490d81703323f61b8af2c7e5e5dc0f0c2bb`
+> * MD5: `9cee7d7ec86ee809a329b5406fbf21a8`
 >
 > Obtain the file's checksum on Windows OS with the following command. Provide the path and file name for the `{PATH AND FILE NAME}` placeholder and indicate the type of checksum to produce for the `{SHA512|MD5}` placeholder, either `SHA256` or `MD5`:
 >
@@ -2596,4 +2707,4 @@ To disable integrity checking, remove the `integrity` parameter by changing the 
 
 Again, disabling integrity checking means that you lose the safety guarantees offered by integrity checking. For example, there is a risk that if the user's browser is caching the app at the exact moment that you deploy a new version, it could cache some files from the old deployment and some from the new deployment. If that happens, the app becomes stuck in a broken state until you deploy a further update.
 
-::: moniker-end
+:::moniker-end

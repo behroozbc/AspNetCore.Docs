@@ -5,14 +5,14 @@ description: Learn how to make Razor components accessible to users in multiple 
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 06/18/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/globalization-localization
 zone_pivot_groups: blazor-hosting-models
 ---
 # ASP.NET Core Blazor globalization and localization
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 Razor components can render globalized and localized content to users in different cultures and languages. For [globalization](/dotnet/standard/globalization-localization/globalization), Blazor provides number and date formatting. For [localization](/dotnet/standard/globalization-localization/localization), Blazor renders content using the [.NET Resources system](/dotnet/framework/resources/).
 
@@ -149,15 +149,7 @@ The following `CultureExample1` component can be used to demonstrate Blazor glob
 
 The number string format (`N2`) in the preceding example (`.ToString("N2")`) is a [standard .NET numeric format specifier](/dotnet/standard/base-types/standard-numeric-format-strings#numeric-format-specifier-n). The `N2` format is supported for all numeric types, includes a group separator, and renders up to two decimal places.
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample1` component:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-1">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 1
-    </NavLink>
-</li>
-```
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample1` component.
 
 ## Dynamically set the culture from the `Accept-Language` header
 
@@ -167,7 +159,7 @@ The [`Accept-Language` header](https://developer.mozilla.org/docs/Web/HTTP/Heade
 
 The app's culture is set by matching the first requested language that matches a supported culture of the app.
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -177,9 +169,9 @@ Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the ap
 </PropertyGroup>
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -199,7 +191,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions()
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Program.cs`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again.
 
@@ -218,7 +210,7 @@ When the culture is Chilean Spanish (`es-CL`), the rendered component uses day/m
 
 ## Statically set the culture
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -248,7 +240,7 @@ The app's culture can be set in JavaScript when Blazor starts with the `applicat
 
 The value for `applicationCulture` must conform to the [BCP-47 language tag format](https://www.rfc-editor.org/info/bcp47). For more information on Blazor startup, see <xref:blazor/fundamentals/startup>.
 
-An alternative to setting the culture Blazor's start option is to set the culture in C# code. Set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture?displayProperty=nameWithType> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture?displayProperty=nameWithType> in `Program.cs`.
+An alternative to setting the culture Blazor's start option is to set the culture in C# code. Set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture?displayProperty=nameWithType> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture?displayProperty=nameWithType> in `Program.cs` to the same culture.
 
 Add the <xref:System.Globalization?displayProperty=fullName> namespace to `Program.cs`:
 
@@ -263,9 +255,12 @@ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 ```
 
-::: zone-end
+> [!IMPORTANT]
+> Always set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture> to the same culture in order to use <xref:Microsoft.Extensions.Localization.IStringLocalizer> and <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
 
-::: zone pivot="server"
+:::zone-end
+
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -285,23 +280,19 @@ The culture value for <xref:Microsoft.AspNetCore.Builder.ApplicationBuilderExten
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Program.cs`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again. When the requested language is Chilean Spanish, the app's culture remains United States English (`en-US`).
 
 ## Dynamically set the culture by user preference
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use browser local storage.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the project file:
 
@@ -380,7 +371,15 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 await host.RunAsync();
 ```
 
-The following `CultureSelector` component shows how to set the user's culture selection into browser local storage via JS interop. The component is placed in the `Shared` folder for use throughout the app.
+> [!IMPORTANT]
+> Always set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture> to the same culture in order to use <xref:Microsoft.Extensions.Localization.IStringLocalizer> and <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
+
+The following `CultureSelector` component shows how to perform the following actions:
+
+* Set the user's culture selection into browser local storage via JS interop.
+* Reload the component that they requested (`forceLoad: true`), which uses the updated culture.
+
+The `CultureSelector` component is placed in the `Shared` folder for use throughout the app.
 
 `Shared/CultureSelector.razor`:
 
@@ -426,7 +425,7 @@ The following `CultureSelector` component shows how to set the user's culture se
 }
 ```
 
-Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/MainLayout.razor`, add the `CultureSelector` component:
+Inside the closing tag of the `<main>` element in `Shared/MainLayout.razor`, add the `CultureSelector` component:
 
 ```razor
 <div class="bottom-row px-4">
@@ -434,21 +433,15 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use a localization cookie.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<ItemGroup>
-  <PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-</ItemGroup>
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -476,17 +469,21 @@ For information on ordering the Localization Middleware in the middleware pipeli
 
 The following example shows how to set the current culture in a cookie that can be read by the Localization Middleware.
 
-Add the following namespaces to the top of the `Pages/_Layout.cshtml` file:
+Modifications to the `Pages/_Host.cshtml` file require the following namespaces:
 
-```csharp
-@using System.Globalization
-@using Microsoft.AspNetCore.Localization
-```
+* <xref:System.Globalization?displayProperty=fullName>
+* <xref:Microsoft.AspNetCore.Localization?displayProperty=fullName>
 
-Immediately after the opening `<body>` tag of `Pages/_Layout.cshtml`, add the following Razor expression:
+`Pages/_Host.cshtml`:
 
 ```cshtml
+@page "/"
+@namespace {NAMESPACE}.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
 @{
+    Layout = "_Layout";
     this.HttpContext.Response.Cookies.Append(
         CookieRequestCultureProvider.DefaultCookieName,
         CookieRequestCultureProvider.MakeCookieValue(
@@ -494,7 +491,11 @@ Immediately after the opening `<body>` tag of `Pages/_Layout.cshtml`, add the fo
                 CultureInfo.CurrentCulture,
                 CultureInfo.CurrentUICulture)));
 }
+
+<component type="typeof(App)" render-mode="ServerPrerendered" />
 ```
+
+In the preceding example, the `{NAMESPACE}` placeholder is the app's assembly name.
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Program.cs`, see <xref:fundamentals/middleware/index#middleware-order>.
 
@@ -549,7 +550,7 @@ public class CultureController : Controller
 > [!WARNING]
 > Use the <xref:Microsoft.AspNetCore.Mvc.ControllerBase.LocalRedirect%2A> action result to prevent open redirect attacks. For more information, see <xref:security/preventing-open-redirects>.
 
-The following `CultureSelector` component shows how to perform the initial redirection when the user selects a culture. The component is placed in the `Shared` folder for use throughout the app.
+The following `CultureSelector` component shows how to call the `Set` method of the `CultureController` with the new culture. The component is placed in the `Shared` folder for use throughout the app.
 
 `Shared/CultureSelector.razor`:
 
@@ -611,21 +612,17 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how the preceding example works.
 
 ## Localization
 
-If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
+[!INCLUDE[](~/includes/package-reference.md)]
 
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
-
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -647,9 +644,9 @@ Add Blazor's localization service to the app's service collection with <xref:Mic
 builder.Services.AddLocalization();
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Use [Localization Middleware](xref:fundamentals/localization#localization-middleware) to set the app's culture.
 
@@ -680,7 +677,7 @@ For information on ordering the Localization Middleware in the middleware pipeli
 
 If the app should localize resources based on storing a user's culture setting, use a localization culture cookie. Use of a cookie ensures that the WebSocket connection can correctly propagate the culture. If localization schemes are based on the URL path or query string, the scheme might not be able to work with [WebSockets](xref:fundamentals/websockets), thus fail to persist the culture. Therefore, the recommended approach is to use a localization culture cookie. See the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article to see an example Razor expression for the `Pages/_Layout.cshtml` file that persists the user's culture selection.
 
-::: zone-end
+:::zone-end
 
 The example of localized resources in this section works with the prior examples in this article where the app's supported cultures are English (`en`) as a default locale and Spanish (`es`) as a user-selectable or browser-specified alternate locale.
 
@@ -833,7 +830,7 @@ Create resources for each locale. In the following example, resources are create
 </root>
 ```
 
-The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
+The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>. The Razor markup `@Loc["Greeting"]` in the following example localizes the string keyed to the `Greeting` value, which is set in the preceding resource files.
 
 Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fullName> to the app's `_Imports.razor` file:
 
@@ -865,7 +862,7 @@ Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fu
 </p>
 
 @code {
-    private string greeting;
+    private string? greeting;
 
     protected override void OnInitialized()
     {
@@ -874,15 +871,17 @@ Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fu
 }
 ```
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample2` component:
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample2` component.
 
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-2">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 2
-    </NavLink>
-</li>
-```
+:::zone pivot="webassembly"
+
+## Culture provider reference source
+
+To further understand how the Blazor framework processes localization, see the [`WebAssemblyCultureProvider` class](https://github.com/dotnet/aspnetcore/blob/main/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs) in the ASP.NET Core reference source.
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
+
+:::zone-end
 
 ## Additional resources
 
@@ -893,9 +892,9 @@ Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` 
 * [Microsoft Multilingual App Toolkit](https://marketplace.visualstudio.com/items?itemName=MultilingualAppToolkit.MultilingualAppToolkit-18308)
 * [Localization & Generics](http://hishambinateya.com/localization-and-generics)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Razor components can render globalized and localized content to users in different cultures and languages. For [globalization](/dotnet/standard/globalization-localization/globalization), Blazor provides number and date formatting. For [localization](/dotnet/standard/globalization-localization/localization), Blazor renders content using the [.NET Resources system](/dotnet/framework/resources/).
 
@@ -1032,15 +1031,7 @@ The following `CultureExample1` component can be used to demonstrate Blazor glob
 
 The number string format (`N2`) in the preceding example (`.ToString("N2")`) is a [standard .NET numeric format specifier](/dotnet/standard/base-types/standard-numeric-format-strings#numeric-format-specifier-n). The `N2` format is supported for all numeric types, includes a group separator, and renders up to two decimal places.
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample1` component:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-1">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 1
-    </NavLink>
-</li>
-```
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample1` component.
 
 ## Dynamically set the culture from the `Accept-Language` header
 
@@ -1050,7 +1041,7 @@ The [`Accept-Language` header](https://developer.mozilla.org/docs/Web/HTTP/Heade
 
 The app's culture is set by matching the first requested language that matches a supported culture of the app.
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -1060,9 +1051,9 @@ Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the ap
 </PropertyGroup>
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -1082,7 +1073,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions()
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Startup.Configure`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again.
 
@@ -1101,7 +1092,7 @@ When the culture is Chilean Spanish (`es-CL`), the rendered component uses day/m
 
 ## Statically set the culture
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -1131,7 +1122,7 @@ The app's culture can be set in JavaScript when Blazor starts with the `applicat
 
 The value for `applicationCulture` must conform to the [BCP-47 language tag format](https://www.rfc-editor.org/info/bcp47). For more information on Blazor startup, see <xref:blazor/fundamentals/startup>.
 
-An alternative to setting the culture Blazor's start option is to set the culture in C# code. Set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture?displayProperty=nameWithType> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture?displayProperty=nameWithType> in `Program.cs`.
+An alternative to setting the culture Blazor's start option is to set the culture in C# code. Set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture?displayProperty=nameWithType> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture?displayProperty=nameWithType> in `Program.cs` to the same culture.
 
 Add the <xref:System.Globalization?displayProperty=fullName> namespace to `Program.cs`:
 
@@ -1146,9 +1137,12 @@ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
 ```
 
-::: zone-end
+> [!IMPORTANT]
+> Always set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture> to the same culture in order to use <xref:Microsoft.Extensions.Localization.IStringLocalizer> and <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
 
-::: zone pivot="server"
+:::zone-end
+
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -1168,23 +1162,19 @@ The culture value for <xref:Microsoft.AspNetCore.Builder.ApplicationBuilderExten
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Startup.Configure`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again. When the requested language is Chilean Spanish, the app's culture remains United States English (`en-US`).
 
 ## Dynamically set the culture by user preference
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use browser local storage.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the project file:
 
@@ -1263,6 +1253,9 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 await host.RunAsync();
 ```
 
+> [!IMPORTANT]
+> Always set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture> to the same culture in order to use <xref:Microsoft.Extensions.Localization.IStringLocalizer> and <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
+
 The following `CultureSelector` component shows how to set the user's culture selection into browser local storage via JS interop. The component is placed in the `Shared` folder for use throughout the app.
 
 `Shared/CultureSelector.razor`:
@@ -1317,21 +1310,15 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use a localization cookie.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<ItemGroup>
-  <PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-</ItemGroup>
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -1497,21 +1484,17 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how the preceding example works.
 
 ## Localization
 
-If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
+[!INCLUDE[](~/includes/package-reference.md)]
 
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
-
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Set the `BlazorWebAssemblyLoadAllGlobalizationData` property to `true` in the app's project file (`.csproj`):
 
@@ -1533,9 +1516,9 @@ Add Blazor's localization service to the app's service collection with <xref:Mic
 builder.Services.AddLocalization();
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Use [Localization Middleware](xref:fundamentals/localization#localization-middleware) to set the app's culture.
 
@@ -1566,7 +1549,7 @@ For information on ordering the Localization Middleware in the middleware pipeli
 
 If the app should localize resources based on storing a user's culture setting, use a localization culture cookie. Use of a cookie ensures that the WebSocket connection can correctly propagate the culture. If localization schemes are based on the URL path or query string, the scheme might not be able to work with [WebSockets](xref:fundamentals/websockets), thus fail to persist the culture. Therefore, the recommended approach is to use a localization culture cookie. See the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article to see an example Razor expression for the `Pages/_Host.cshtml` file that persists the user's culture selection.
 
-::: zone-end
+:::zone-end
 
 The example of localized resources in this section works with the prior examples in this article where the app's supported cultures are English (`en`) as a default locale and Spanish (`es`) as a user-selectable or browser-specified alternate locale.
 
@@ -1719,7 +1702,7 @@ Create resources for each locale. In the following example, resources are create
 </root>
 ```
 
-The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
+The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>. The Razor markup `@Loc["Greeting"]` in the following example localizes the string keyed to the `Greeting` value, which is set in the preceding resource files.
 
 Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fullName> to the app's `_Imports.razor` file:
 
@@ -1760,15 +1743,17 @@ Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fu
 }
 ```
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample2` component:
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample2` component.
 
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-2">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 2
-    </NavLink>
-</li>
-```
+:::zone pivot="webassembly"
+
+## Culture provider reference source
+
+To further understand how the Blazor framework processes localization, see the [`WebAssemblyCultureProvider` class](https://github.com/dotnet/aspnetcore/blob/main/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs) in the ASP.NET Core reference source.
+
+[!INCLUDE[](~/includes/aspnetcore-repo-ref-source-links.md)]
+
+:::zone-end
 
 ## Additional resources
 
@@ -1779,9 +1764,9 @@ Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` 
 * [Microsoft Multilingual App Toolkit](https://marketplace.visualstudio.com/items?itemName=MultilingualAppToolkit.MultilingualAppToolkit-18308)
 * [Localization & Generics](http://hishambinateya.com/localization-and-generics)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Razor components can render globalized and localized content to users in different cultures and languages. For [globalization](/dotnet/standard/globalization-localization/globalization), Blazor provides number and date formatting. For [localization](/dotnet/standard/globalization-localization/localization), Blazor renders content using the [.NET Resources system](/dotnet/framework/resources/).
 
@@ -1918,15 +1903,7 @@ The following `CultureExample1` component can be used to demonstrate Blazor glob
 
 The number string format (`N2`) in the preceding example (`.ToString("N2")`) is a [standard .NET numeric format specifier](/dotnet/standard/base-types/standard-numeric-format-strings#numeric-format-specifier-n). The `N2` format is supported for all numeric types, includes a group separator, and renders up to two decimal places.
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample1` component:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-1">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 1
-    </NavLink>
-</li>
-```
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample1` component.
 
 ## Dynamically set the culture from the `Accept-Language` header
 
@@ -1936,7 +1913,7 @@ The [`Accept-Language` header](https://developer.mozilla.org/docs/Web/HTTP/Heade
 
 The app's culture is set by matching the first requested language that matches a supported culture of the app.
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -1956,7 +1933,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions()
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Startup.Configure`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again.
 
@@ -1975,13 +1952,13 @@ When the culture is Chilean Spanish (`es-CL`), the rendered component uses day/m
 
 ## Statically set the culture
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 By default, the Intermediate Language (IL) Linker configuration for Blazor WebAssembly apps strips out internationalization information except for locales explicitly requested. For more information, see <xref:blazor/host-and-deploy/configure-linker#configure-the-linker-for-internationalization>.
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -2001,23 +1978,19 @@ The culture value for <xref:Microsoft.AspNetCore.Builder.ApplicationBuilderExten
 
 For information on ordering the Localization Middleware in the middleware pipeline of `Startup.Configure`, see <xref:fundamentals/middleware/index#middleware-order>.
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how globalization works. Issue a request with United States English (`en-US`). Switch to Chilean Spanish (`es-CL`) in the browser's language settings. Request the webpage again. When the requested language is Chilean Spanish, the app's culture remains United States English (`en-US`).
 
 ## Dynamically set the culture by user preference
 
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use browser local storage.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 The app's culture in a Blazor WebAssembly app is set using the Blazor framework's API. A user's culture selection can be persisted in browser local storage.
 
@@ -2071,6 +2044,9 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 await host.RunAsync();
 ```
+
+> [!IMPORTANT]
+> Always set <xref:System.Globalization.CultureInfo.DefaultThreadCurrentCulture> and <xref:System.Globalization.CultureInfo.DefaultThreadCurrentUICulture> to the same culture in order to use <xref:Microsoft.Extensions.Localization.IStringLocalizer> and <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
 
 The following `CultureSelector` component shows how to set the user's culture selection into browser local storage via JS interop. The component is placed in the `Shared` folder for use throughout the app.
 
@@ -2126,21 +2102,15 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Examples of locations where an app might store a user's preference include in [browser local storage](https://developer.mozilla.org/docs/Web/API/Window/localStorage) (common in Blazor WebAssembly apps), in a localization cookie or database (common in Blazor Server apps), or in an external service attached to an external database and accessed by a [web API](xref:blazor/call-web-api). The following example demonstrates how to use a localization cookie.
 
-Add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+Add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<ItemGroup>
-  <PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-</ItemGroup>
-```
-
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
+[!INCLUDE[](~/includes/package-reference.md)]
 
 Blazor Server apps are localized using [Localization Middleware](xref:fundamentals/localization#localization-middleware). Add localization services to the app with <xref:Microsoft.Extensions.DependencyInjection.LocalizationServiceCollectionExtensions.AddLocalization%2A>.
 
@@ -2306,21 +2276,17 @@ Inside the closing `</div>` tag of the `<div class="main">` element in `Shared/M
 </div>
 ```
 
-::: zone-end
+:::zone-end
 
 Use the `CultureExample1` component shown in the [Demonstration component](#demonstration-component) section to study how the preceding example works.
 
 ## Localization
 
-If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add a package reference for the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app's project file (`.csproj`):
+If the app doesn't already support culture selection per the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article, add the [`Microsoft.Extensions.Localization`](https://www.nuget.org/packages/Microsoft.Extensions.Localization) package to the app.
 
-```xml
-<PackageReference Include="Microsoft.Extensions.Localization" Version="{VERSION}" />
-```
+[!INCLUDE[](~/includes/package-reference.md)]
 
-The `{VERSION}` placeholder in the preceding package reference is the version of the package.
-
-::: zone pivot="webassembly"
+:::zone pivot="webassembly"
 
 By default, the Intermediate Language (IL) Linker configuration for Blazor WebAssembly apps strips out internationalization information except for locales explicitly requested. For more information, see <xref:blazor/host-and-deploy/configure-linker#configure-the-linker-for-internationalization>.
 
@@ -2336,9 +2302,9 @@ Add Blazor's localization service to the app's service collection with <xref:Mic
 builder.Services.AddLocalization();
 ```
 
-::: zone-end
+:::zone-end
 
-::: zone pivot="server"
+:::zone pivot="server"
 
 Use [Localization Middleware](xref:fundamentals/localization#localization-middleware) to set the app's culture.
 
@@ -2369,7 +2335,7 @@ For information on ordering the Localization Middleware in the middleware pipeli
 
 If the app should localize resources based on storing a user's culture setting, use a localization culture cookie. Use of a cookie ensures that the WebSocket connection can correctly propagate the culture. If localization schemes are based on the URL path or query string, the scheme might not be able to work with [WebSockets](xref:fundamentals/websockets), thus fail to persist the culture. Therefore, the recommended approach is to use a localization culture cookie. See the [Dynamically set the culture by user preference](#dynamically-set-the-culture-by-user-preference) section of this article to see an example Razor expression for the `Pages/_Host.cshtml` file that persists the user's culture selection.
 
-::: zone-end
+:::zone-end
 
 The example of localized resources in this section works with the prior examples in this article where the app's supported cultures are English (`en`) as a default locale and Spanish (`es`) as a user-selectable or browser-specified alternate locale.
 
@@ -2522,7 +2488,7 @@ Create resources for each locale. In the following example, resources are create
 </root>
 ```
 
-The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>.
+The following component demonstrates the use of the localized `Greeting` string with <xref:Microsoft.Extensions.Localization.IStringLocalizer%601>. The Razor markup `@Loc["Greeting"]` in the following example localizes the string keyed to the `Greeting` value, which is set in the preceding resource files.
 
 Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fullName> to the app's `_Imports.razor` file:
 
@@ -2563,15 +2529,7 @@ Add the namespace for <xref:Microsoft.Extensions.Localization?displayProperty=fu
 }
 ```
 
-Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` for the `CultureExample2` component:
-
-```razor
-<li class="nav-item px-3">
-    <NavLink class="nav-link" href="culture-example-2">
-        <span class="oi oi-list-rich" aria-hidden="true"></span> Culture Example 2
-    </NavLink>
-</li>
-```
+Optionally, add a menu item to the navigation in `Shared/NavMenu.razor` for the `CultureExample2` component.
 
 ## Additional resources
 
@@ -2582,4 +2540,4 @@ Add a list item to the navigation menu `<ul>` element in `Shared/NavMenu.razor` 
 * [Microsoft Multilingual App Toolkit](https://marketplace.visualstudio.com/items?itemName=MultilingualAppToolkit.MultilingualAppToolkit-18308)
 * [Localization & Generics](http://hishambinateya.com/localization-and-generics)
 
-::: moniker-end
+:::moniker-end

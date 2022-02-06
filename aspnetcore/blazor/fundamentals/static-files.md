@@ -5,13 +5,13 @@ description: Learn how to configure and manage static files for Blazor apps.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 01/27/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/fundamentals/static-files
 ---
 # ASP.NET Core Blazor static files
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 This article describes the configuration for serving static files in Blazor apps.
 
@@ -103,7 +103,7 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 
   ```csharp
   app.MapWhen(ctx => !ctx.Request.Path
-      .StartsWithSegments("_framework/blazor.server.js"),
+      .StartsWithSegments("/_framework/blazor.server.js"),
           subApp => subApp.UseStaticFiles(new StaticFileOptions() { ... }));
   ```
 
@@ -112,9 +112,9 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 * [App base path](xref:blazor/host-and-deploy/index#app-base-path)
 * [Hosted deployment with multiple Blazor WebAssembly apps](xref:blazor/host-and-deploy/webassembly#hosted-deployment-with-multiple-blazor-webassembly-apps)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 This article describes the configuration for serving static files in Blazor apps.
 
@@ -206,7 +206,7 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 
   ```csharp
   app.MapWhen(ctx => !ctx.Request.Path
-      .StartsWithSegments("_framework/blazor.server.js"),
+      .StartsWithSegments("/_framework/blazor.server.js"),
           subApp => subApp.UseStaticFiles(new StaticFileOptions() { ... }));
   ```
 
@@ -215,9 +215,9 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 * [App base path](xref:blazor/host-and-deploy/index#app-base-path)
 * [Hosted deployment with multiple Blazor WebAssembly apps](xref:blazor/host-and-deploy/webassembly#hosted-deployment-with-multiple-blazor-webassembly-apps)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 This article describes the configuration for serving static files in Blazor apps.
 
@@ -314,7 +314,7 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 
   ```csharp
   app.MapWhen(ctx => !ctx.Request.Path
-      .StartsWithSegments("_framework/blazor.server.js"),
+      .StartsWithSegments("/_framework/blazor.server.js"),
           subApp => subApp.UseStaticFiles(new StaticFileOptions() { ... }));
   ```
 
@@ -323,4 +323,4 @@ To create additional file mappings with a <xref:Microsoft.AspNetCore.StaticFiles
 * [App base path](xref:blazor/host-and-deploy/index#app-base-path)
 * [Hosted deployment with multiple Blazor WebAssembly apps](xref:blazor/host-and-deploy/webassembly#hosted-deployment-with-multiple-blazor-webassembly-apps)
 
-::: moniker-end
+:::moniker-end

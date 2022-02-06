@@ -10,7 +10,7 @@ uid: security/cors
 ---
 # Enable Cross-Origin Requests (CORS) in ASP.NET Core
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 By [Rick Anderson](https://twitter.com/RickAndMSFT) and [Kirk Larkin](https://twitter.com/serpent5)
 
@@ -518,6 +518,14 @@ If <xref:Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicyBuilder.AllowAnyOrig
 
 If the response doesn't include the `Access-Control-Allow-Origin` header, the cross-origin request fails. Specifically, the browser disallows the request. Even if the server returns a successful response, the browser doesn't make the response available to the client app.
 
+<a name="no-http"></a>
+
+### HTTP redirection to HTTPS causes ERR_INVALID_REDIRECT on the CORS preflight request
+
+Requests to an endpoint using HTTP that are redirected to HTTPS by <xref:Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions.UseHttpsRedirection%2A> fail with `ERR_INVALID_REDIRECT on the CORS preflight request`.
+
+API projects can reject HTTP requests rather than use `UseHttpsRedirection` to redirect requests to HTTPS.
+
 <a name="options"></a>
 
 ### Display OPTIONS requests
@@ -616,9 +624,9 @@ Test the preceding code from the [test page](https://cors1.azurewebsites.net/tes
 * [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/docs/Web/HTTP/CORS)
 * [Getting started with the IIS CORS module](https://blogs.iis.net/iisteam/getting-started-with-the-iis-cors-module)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-6.0"
+:::moniker range="< aspnetcore-6.0"
 
 By [Rick Anderson](https://twitter.com/RickAndMSFT) and [Kirk Larkin](https://twitter.com/serpent5)
 
@@ -1219,5 +1227,5 @@ Test the preceding code from the [test page](https://cors1.azurewebsites.net/tes
 * [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/docs/Web/HTTP/CORS)
 * [Getting started with the IIS CORS module](https://blogs.iis.net/iisteam/getting-started-with-the-iis-cors-module)
 
-::: moniker-end
+:::moniker-end
 

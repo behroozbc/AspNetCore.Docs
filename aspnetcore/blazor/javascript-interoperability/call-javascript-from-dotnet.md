@@ -5,13 +5,13 @@ description: Learn how to invoke JavaScript functions from .NET methods in Blazo
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 05/12/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR, JS, Promise]
 uid: blazor/js-interop/call-javascript-from-dotnet
 ---
 # Call JavaScript functions from .NET methods in ASP.NET Core Blazor
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 This article covers invoking JavaScript (JS) functions from .NET. For information on how to call .NET methods from JS, see <xref:blazor/js-interop/call-dotnet-from-javascript>.
 
@@ -56,6 +56,12 @@ The following `CallJsExample1` component:
 `Pages/CallJsExample1.razor`:
 
 [!code-razor[](~/blazor/samples/6.0/BlazorSample_WebAssembly/Pages/call-js-from-dotnet/CallJsExample1.razor?highlight=2,34)]
+
+## JavaScript API restricted to user gestures
+
+*This section only applies to Blazor Server apps.*
+
+Some browser JavaScript (JS) APIs can only be executed in the context of a user gesture, such as using the [`Fullscreen API` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/Fullscreen_API). These APIs can't be called through the JS interop mechanism in Blazor Server apps because UI event handling is performed asynchronously and generally no longer in the context of the user gesture. The app must handle the UI event completely in JavaScript, so use [`onclick` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/GlobalEventHandlers/onclick) instead of Blazor's `@onclick` directive attribute.
 
 ## Invoke JavaScript functions without reading a returned value (`InvokeVoidAsync`)
 
@@ -146,12 +152,13 @@ IJSRuntime JS { get; set; }
 
 [!INCLUDE[](~/blazor/includes/prerendering.md)]
 
-## Location of JavaScipt
+## Location of JavaScript
 
-Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascipt):
+Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascript):
 
 * [Load a script in `<head>` markup](xref:blazor/js-interop/index#load-a-script-in-head-markup) (*Not generally recommended*)
 * [Load a script in `<body>` markup](xref:blazor/js-interop/index#load-a-script-in-body-markup)
+* [Load a script from an external JavaScript file (`.js`) collocated with a component](xref:blazor/js-interop/index#load-a-script-from-an-external-javascript-file-js-collocated-with-a-component)
 * [Load a script from an external JS file (`.js`)](xref:blazor/js-interop/index#load-a-script-from-an-external-js-file-js)
 * [Inject a script after Blazor starts](xref:blazor/js-interop/index#inject-a-script-after-blazor-starts)
 
@@ -250,7 +257,7 @@ The following example shows capturing a reference to the `username` `<input>` el
 >
 > For more information, see <xref:blazor/js-interop/index#interaction-with-the-document-object-model-dom>.
 
-An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an `HTMLElement` instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
+An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an [`HTMLElement`](https://developer.mozilla.org/docs/Web/API/HTMLElement) instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
 
 The JS function `clickElement` creates a [`click`](https://developer.mozilla.org/docs/Web/API/Element/click_event) event on the passed HTML element (`element`):
 
@@ -347,7 +354,7 @@ The `{JAVASCRIPT FUNCTION}` placeholder is the JS function identifier.
 
 @code {
     private ElementReference username;
-    private string returnValue;
+    private string? returnValue;
 
     private async Task OnClickMethod()
     {
@@ -458,7 +465,7 @@ The following example demonstrates the concept. Within the `if` statement when `
 <div @ref="unmanagedElement"></div>
 
 @code {
-    private HtmlElement unmanagedElement;
+    private ElementReference unmanagedElement;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -558,12 +565,12 @@ Inside the closing `</body>` tag of `wwwroot/index.html` (Blazor WebAssembly) or
 
 <p>
     Quote &copy;2005 <a href="https://www.uphe.com">Universal Pictures</a>:
-    <a href="https://www.uphe.com/movies/serenity">Serenity</a><br>
+    <a href="https://www.uphe.com/movies/serenity-2005">Serenity</a><br>
     <a href="https://www.imdb.com/name/nm0821612/">Jewel Staite on IMDB</a>
 </p>
 
 @code {
-    private string result;
+    private string? result;
 
     private async Task SendByteArray()
     {
@@ -716,9 +723,9 @@ In the following example, the `nonFunction` JS function doesn't exist. When the 
 * <xref:blazor/js-interop/call-dotnet-from-javascript>
 * [`InteropComponent.razor` example (dotnet/AspNetCore GitHub repository `main` branch)](https://github.com/dotnet/AspNetCore/blob/main/src/Components/test/testassets/BasicTestApp/InteropComponent.razor): The `main` branch represents the product unit's current development for the next release of ASP.NET Core. To select the branch for a different release (for example, `release/5.0`), use the **Switch branches or tags** dropdown list to select the branch.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 This article covers invoking JavaScript (JS) functions from .NET. For information on how to call .NET methods from JS, see <xref:blazor/js-interop/call-dotnet-from-javascript>.
 
@@ -763,6 +770,12 @@ The following `CallJsExample1` component:
 `Pages/CallJsExample1.razor`:
 
 [!code-razor[](~/blazor/samples/5.0/BlazorSample_WebAssembly/Pages/call-js-from-dotnet/CallJsExample1.razor?highlight=2,34)]
+
+## JavaScript API restricted to user gestures
+
+*This section only applies to Blazor Server apps.*
+
+Some browser JavaScript (JS) APIs can only be executed in the context of a user gesture, such as using the [`Fullscreen API` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/Fullscreen_API). These APIs can't be called through the JS interop mechanism in Blazor Server apps because UI event handling is performed asynchronously and generally no longer in the context of the user gesture. The app must handle the UI event completely in JavaScript, so use [`onclick` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/GlobalEventHandlers/onclick) instead of Blazor's `@onclick` directive attribute.
 
 ## Invoke JavaScript functions without reading a returned value (`InvokeVoidAsync`)
 
@@ -853,9 +866,9 @@ IJSRuntime JS { get; set; }
 
 [!INCLUDE[](~/blazor/includes/prerendering.md)]
 
-## Location of JavaScipt
+## Location of JavaScript
 
-Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascipt):
+Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascript):
 
 * [Load a script in `<head>` markup](xref:blazor/js-interop/index#load-a-script-in-head-markup) (*Not generally recommended*)
 * [Load a script in `<body>` markup](xref:blazor/js-interop/index#load-a-script-in-body-markup)
@@ -956,7 +969,7 @@ The following example shows capturing a reference to the `username` `<input>` el
 >
 > For more information, see <xref:blazor/js-interop/index#interaction-with-the-document-object-model-dom>.
 
-An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an `HTMLElement` instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
+An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an [`HTMLElement`](https://developer.mozilla.org/docs/Web/API/HTMLElement) instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
 
 The JS function `clickElement` creates a [`click`](https://developer.mozilla.org/docs/Web/API/Element/click_event) event on the passed HTML element (`element`):
 
@@ -1164,7 +1177,7 @@ The following example demonstrates the concept. Within the `if` statement when `
 <div @ref="unmanagedElement"></div>
 
 @code {
-    private HtmlElement unmanagedElement;
+    private ElementReference unmanagedElement;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -1324,9 +1337,9 @@ In the following example, the `nonFunction` JS function doesn't exist. When the 
 * <xref:blazor/js-interop/call-dotnet-from-javascript>
 * [`InteropComponent.razor` example (dotnet/AspNetCore GitHub repository `main` branch)](https://github.com/dotnet/AspNetCore/blob/main/src/Components/test/testassets/BasicTestApp/InteropComponent.razor): The `main` branch represents the product unit's current development for the next release of ASP.NET Core. To select the branch for a different release (for example, `release/5.0`), use the **Switch branches or tags** dropdown list to select the branch.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 This article covers invoking JavaScript (JS) functions from .NET. For information on how to call .NET methods from JS, see <xref:blazor/js-interop/call-dotnet-from-javascript>.
 
@@ -1371,6 +1384,12 @@ The following `CallJsExample1` component:
 `Pages/CallJsExample1.razor`:
 
 [!code-razor[](~/blazor/samples/3.1/BlazorSample_WebAssembly/Pages/call-js-from-dotnet/CallJsExample1.razor?highlight=2,34-35)]
+
+## JavaScript API restricted to user gestures
+
+*This section only applies to Blazor Server apps.*
+
+Some browser JavaScript (JS) APIs can only be executed in the context of a user gesture, such as using the [`Fullscreen API` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/Fullscreen_API). These APIs can't be called through the JS interop mechanism in Blazor Server apps because UI event handling is performed asynchronously and generally no longer in the context of the user gesture. The app must handle the UI event completely in JavaScript, so use [`onclick` (MDN documentation)](https://developer.mozilla.org/docs/Web/API/GlobalEventHandlers/onclick) instead of Blazor's `@onclick` directive attribute.
 
 ## Invoke JavaScript functions without reading a returned value (`InvokeVoidAsync`)
 
@@ -1461,9 +1480,9 @@ IJSRuntime JS { get; set; }
 
 [!INCLUDE[](~/blazor/includes/prerendering.md)]
 
-## Location of JavaScipt
+## Location of JavaScript
 
-Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascipt):
+Load JavaScript (JS) code using any of approaches described by the [JavaScript (JS) interoperability (interop) overview article](xref:blazor/js-interop/index#location-of-javascript):
 
 * [Load a script in `<head>` markup](xref:blazor/js-interop/index#load-a-script-in-head-markup) (*Not generally recommended*)
 * [Load a script in `<body>` markup](xref:blazor/js-interop/index#load-a-script-in-body-markup)
@@ -1510,7 +1529,7 @@ The following example shows capturing a reference to the `username` `<input>` el
 >
 > For more information, see <xref:blazor/js-interop/index#interaction-with-the-document-object-model-dom>.
 
-An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an `HTMLElement` instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
+An <xref:Microsoft.AspNetCore.Components.ElementReference> is passed through to JS code via JS interop. The JS code receives an [`HTMLElement`](https://developer.mozilla.org/docs/Web/API/HTMLElement) instance, which it can use with normal DOM APIs. For example, the following code defines a .NET extension method (`TriggerClickEvent`) that enables sending a mouse click to an element.
 
 The JS function `clickElement` creates a [`click`](https://developer.mozilla.org/docs/Web/API/Element/click_event) event on the passed HTML element (`element`):
 
@@ -1727,4 +1746,4 @@ In the following example, the `nonFunction` JS function doesn't exist. When the 
 * <xref:blazor/file-downloads>
 * <xref:blazor/file-uploads>
 
-::: moniker-end
+:::moniker-end

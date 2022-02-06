@@ -5,13 +5,13 @@ description: Tips for increasing performance in ASP.NET Core Blazor apps and avo
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 09/02/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/performance
 ---
 # ASP.NET Core Blazor performance best practices
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 Blazor is optimized for high performance in most realistic application UI scenarios. However, the best performance depends on developers adopting the correct patterns and features.
 
@@ -21,7 +21,7 @@ Optimize rendering speed to minimize rendering workload and improve UI responsiv
 
 ### Avoid unnecessary rendering of component subtrees
 
-You might able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
+You might be able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
 
 At runtime, components exist in a hierarchy. A root component has child components. In turn, the root's children have their own child components, and so on. When an event occurs, such as a user selecting a button, the following process determines which components to rerender:
 
@@ -42,23 +42,23 @@ The following airline flight search tool example uses private fields to track th
 
 ```razor
 @code {
-    private int prevInboundFlightId;
-    private int prevOutboundFlightId;
+    private int prevInboundFlightId = 0;
+    private int prevOutboundFlightId = 0;
     private bool shouldRender;
 
     [Parameter]
-    public FlightInfo InboundFlight { get; set; }
+    public FlightInfo? InboundFlight { get; set; }
 
     [Parameter]
-    public FlightInfo OutboundFlight { get; set; }
+    public FlightInfo? OutboundFlight { get; set; }
 
     protected override void OnParametersSet()
     {
-        shouldRender = InboundFlight.FlightId != prevInboundFlightId
-            || OutboundFlight.FlightId != prevOutboundFlightId;
+        shouldRender = InboundFlight?.FlightId != prevInboundFlightId
+            || OutboundFlight?.FlightId != prevOutboundFlightId;
 
-        prevInboundFlightId = InboundFlight.FlightId;
-        prevOutboundFlightId = OutboundFlight.FlightId;
+        prevInboundFlightId = InboundFlight?.FlightId ?? 0;
+        prevOutboundFlightId = OutboundFlight?.FlightId ?? 0;
     }
 
     protected override bool ShouldRender() => shouldRender;
@@ -126,7 +126,7 @@ Consider the following portion of a parent component that renders child componen
 
 @code {
     [Parameter]
-    public ChatMessage Message { get; set; }
+    public ChatMessage? Message { get; set; }
 }
 ```
 
@@ -166,6 +166,9 @@ You might be factoring out child components purely as a way of reusing rendering
 ```
 
 As demonstrated in the preceding example, components can emit markup from code within their `@code` blocks and outside of them. The <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate must accept a parameter called `__builder` of type <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> so that the Razor compiler can produce rendering instructions for the fragment.
+
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`), and [event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported.
 
 To make <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> code reusable across multiple components, declare the <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate as `public` and `static`:
 
@@ -227,10 +230,10 @@ To reduce parameter load, bundle multiple parameters in a custom class. For exam
 
 @code {
     [Parameter]
-    public TItem Data { get; set; }
+    public TItem? Data { get; set; }
     
     [Parameter]
-    public GridOptions Options { get; set; }
+    public GridOptions? Options { get; set; }
 }
 ```
 
@@ -273,7 +276,7 @@ Components can elect to receive "unmatched" parameter values using the <xref:Mic
 
 @code {
     [Parameter(CaptureUnmatchedValues = true)]
-    public IDictionary<string, object> OtherAttributes { get; set; }
+    public IDictionary<string, object>? OtherAttributes { get; set; }
 }
 ```
 
@@ -304,7 +307,7 @@ In extreme cases, you can override the component's virtual <xref:Microsoft.AspNe
     public int MessageId { get; set; }
 
     [Parameter]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     [Parameter]
     public EventCallback<string> TextChanged { get; set; }
@@ -362,7 +365,7 @@ Rather than use native events that rapidly fire, consider the use of JS interop 
 
 @code {
     private ElementReference mouseMoveElement;
-    private DotNetObjectReference<MyComponent> selfReference;
+    private DotNetObjectReference<MyComponent>? selfReference;
     private string message = "Move the mouse in the box";
 
     [JSInvokable]
@@ -436,7 +439,7 @@ In the following example, no event handler added to the component triggers a rer
     }
 
     Task IHandleEvent.HandleEventAsync(
-        EventCallbackWorkItem callback, object arg) => callback.InvokeAsync(arg);
+        EventCallbackWorkItem callback, object? arg) => callback.InvokeAsync(arg);
 }
 ```
 
@@ -485,8 +488,9 @@ Call `EventUtil.AsNonRenderingEventHandler` to call an event handler that doesn'
 
 In the following example:
 
-* Selecting the first button, which calls `HandleSelectRerender`, triggers a rerender.
-* Selecting the second button, which calls `HandleSelectWithoutRerender`, doesn't trigger a rerender.
+* Selecting the first button, which calls `HandleClick1`, triggers a rerender.
+* Selecting the second button, which calls `HandleClick2`, doesn't trigger a rerender.
+* Selecting the third button, which calls `HandleClick3`, doesn't trigger a rerender and uses [event arguments](xref:blazor/components/event-handling#event-arguments) (<xref:Microsoft.AspNetCore.Components.Web.MouseEventArgs>).
 
 `Pages/HandleSelect2.razor`:
 
@@ -499,29 +503,43 @@ In the following example:
     Last render DateTime: @dt
 </p>
 
-<button @onclick="HandleSelectRerender">
+<button @onclick="HandleClick1">
     Select me (Rerenders)
 </button>
 
-<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleSelectWithoutRerender)">
+<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleClick2)">
     Select me (Avoids Rerender)
+</button>
+
+<button @onclick="EventUtil.AsNonRenderingEventHandler<MouseEventArgs>(HandleClick3)">
+    Select me (Avoids Rerender and uses <code>MouseEventArgs</code>)
 </button>
 
 @code {
     private DateTime dt = DateTime.Now;
 
-    private void HandleSelectRerender()
+    private void HandleClick1()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler triggers a rerender.");
     }
 
-    private void HandleSelectWithoutRerender()
+    private void HandleClick2()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler doesn't trigger a rerender.");
+    }
+    
+    private void HandleClick3(MouseEventArgs args)
+    {
+        dt = DateTime.Now;
+
+        Logger.LogInformation(
+            "This event handler doesn't trigger a rerender. " +
+            "Mouse coordinates: {ScreenX}:{ScreenY}", 
+            args.ScreenX, args.ScreenY);
     }
 }
 ```
@@ -583,13 +601,11 @@ If a large number of buttons are rendered using the preceding approach, renderin
 
     private class Button
     {
-        public string Id { get; set; }
-        public Action<MouseEventArgs> Action { get; set; }
+        public string? Id { get; set; }
+        public Action<MouseEventArgs> Action { get; set; } = e => { };
     }
 }
 ```
-
-For more information, see [Blazor Binary message size send from server to client increases (dotnet/aspnetcore #17886)](https://github.com/dotnet/aspnetcore/issues/17886).
 
 ## Optimize JavaScript interop speed
 
@@ -698,7 +714,15 @@ function jsInteropCall() {
 }
 ```
 
+## Ahead-of-time (AOT) compilation
+
+Ahead-of-time (AOT) compilation compiles a Blazor app's .NET code directly into native WebAssembly for direct execution by the browser. AOT-compiled apps result in larger apps that take longer to download, but AOT-compiled apps usually provide better runtime performance, especially for apps that execute CPU-intensive tasks. For more information, see <xref:blazor/host-and-deploy/webassembly#ahead-of-time-aot-compilation>.
+
 ## Minimize app download size
+
+### Runtime relinking
+
+For information on how runtime relinking minimizes an app's download size, see <xref:blazor/host-and-deploy/webassembly#runtime-relinking>.
 
 ### Use `System.Text.Json`
 
@@ -724,7 +748,7 @@ Load assemblies at runtime when the assemblies are required by a route. For more
 
 When a Blazor WebAssembly app is published, the output is statically compressed during publish to reduce the app's size and remove the overhead for runtime compression. Blazor relies on the server to perform content negotiation and serve statically-compressed files.
 
-After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [Developer Tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
+After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [developer tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
 
 ### Disable unused features
 
@@ -742,9 +766,9 @@ Blazor WebAssembly's runtime includes the following .NET features that can be di
 
 * By default, Blazor WebAssembly carries globalization resources required to display values, such as dates and currency, in the user's culture. If the app doesn't require localization, you may [configure the app to support the invariant culture](xref:blazor/globalization-localization#invariant-globalization), which is based on the `en-US` culture.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Blazor is optimized for high performance in most realistic application UI scenarios. However, the best performance depends on developers adopting the correct patterns and features.
 
@@ -754,7 +778,7 @@ Optimize rendering speed to minimize rendering workload and improve UI responsiv
 
 ### Avoid unnecessary rendering of component subtrees
 
-You might able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
+You might be able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
 
 At runtime, components exist in a hierarchy. A root component has child components. In turn, the root's children have their own child components, and so on. When an event occurs, such as a user selecting a button, the following process determines which components to rerender:
 
@@ -899,6 +923,9 @@ You might be factoring out child components purely as a way of reusing rendering
 ```
 
 As demonstrated in the preceding example, components can emit markup from code within their `@code` blocks and outside of them. The <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate must accept a parameter called `__builder` of type <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> so that the Razor compiler can produce rendering instructions for the fragment.
+
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`), and [event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported.
 
 To make <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> code reusable across multiple components, declare the <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate as `public` and `static`:
 
@@ -1218,8 +1245,9 @@ Call `EventUtil.AsNonRenderingEventHandler` to call an event handler that doesn'
 
 In the following example:
 
-* Selecting the first button, which calls `HandleSelectRerender`, triggers a rerender.
-* Selecting the second button, which calls `HandleSelectWithoutRerender`, doesn't trigger a rerender.
+* Selecting the first button, which calls `HandleClick1`, triggers a rerender.
+* Selecting the second button, which calls `HandleClick2`, doesn't trigger a rerender.
+* Selecting the third button, which calls `HandleClick3`, doesn't trigger a rerender and uses [event arguments](xref:blazor/components/event-handling#event-arguments) (<xref:Microsoft.AspNetCore.Components.Web.MouseEventArgs>).
 
 `Pages/HandleSelect2.razor`:
 
@@ -1232,29 +1260,43 @@ In the following example:
     Last render DateTime: @dt
 </p>
 
-<button @onclick="HandleSelectRerender">
+<button @onclick="HandleClick1">
     Select me (Rerenders)
 </button>
 
-<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleSelectWithoutRerender)">
+<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleClick2)">
     Select me (Avoids Rerender)
+</button>
+
+<button @onclick="EventUtil.AsNonRenderingEventHandler<MouseEventArgs>(HandleClick3)">
+    Select me (Avoids Rerender and uses <code>MouseEventArgs</code>)
 </button>
 
 @code {
     private DateTime dt = DateTime.Now;
 
-    private void HandleSelectRerender()
+    private void HandleClick1()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler triggers a rerender.");
     }
 
-    private void HandleSelectWithoutRerender()
+    private void HandleClick2()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler doesn't trigger a rerender.");
+    }
+    
+    private void HandleClick3(MouseEventArgs args)
+    {
+        dt = DateTime.Now;
+
+        Logger.LogInformation(
+            "This event handler doesn't trigger a rerender. " +
+            "Mouse coordinates: {ScreenX}:{ScreenY}", 
+            args.ScreenX, args.ScreenY);
     }
 }
 ```
@@ -1321,8 +1363,6 @@ If a large number of buttons are rendered using the preceding approach, renderin
     }
 }
 ```
-
-For more information, see [Blazor Binary message size send from server to client increases (dotnet/aspnetcore #17886)](https://github.com/dotnet/aspnetcore/issues/17886).
 
 ## Optimize JavaScript interop speed
 
@@ -1457,7 +1497,7 @@ Load assemblies at runtime when the assemblies are required by a route. For more
 
 When a Blazor WebAssembly app is published, the output is statically compressed during publish to reduce the app's size and remove the overhead for runtime compression. Blazor relies on the server to perform content negotation and serve statically-compressed files.
 
-After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [Developer Tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
+After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [developer tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
 
 ### Disable unused features
 
@@ -1475,9 +1515,9 @@ Blazor WebAssembly's runtime includes the following .NET features that can be di
 
 * By default, Blazor WebAssembly carries globalization resources required to display values, such as dates and currency, in the user's culture. If the app doesn't require localization, you may [configure the app to support the invariant culture](xref:blazor/globalization-localization#invariant-globalization), which is based on the `en-US` culture.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Blazor is optimized for high performance in most realistic application UI scenarios. However, the best performance depends on developers adopting the correct patterns and features.
 
@@ -1487,7 +1527,7 @@ Optimize rendering speed to minimize rendering workload and improve UI responsiv
 
 ### Avoid unnecessary rendering of component subtrees
 
-You might able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
+You might be able to remove the majority of a parent component's rendering cost by skipping the rerendering of child component subtrees when an event occurs. You should only be concerned about skipping the rerendering subtrees that are particularly expensive to render and are causing UI lag.
 
 At runtime, components exist in a hierarchy. A root component has child components. In turn, the root's children have their own child components, and so on. When an event occurs, such as a user selecting a button, the following process determines which components to rerender:
 
@@ -1624,6 +1664,9 @@ You might be factoring out child components purely as a way of reusing rendering
 ```
 
 As demonstrated in the preceding example, components can emit markup from code within their `@code` blocks and outside of them. The <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate must accept a parameter called `__builder` of type <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> so that the Razor compiler can produce rendering instructions for the fragment.
+
+> [!NOTE]
+> Assignment to a <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate is only supported in Razor component files (`.razor`), and [event callbacks](xref:blazor/components/event-handling#eventcallback) aren't supported.
 
 To make <xref:Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder> code reusable across multiple components, declare the <xref:Microsoft.AspNetCore.Components.RenderFragment> delegate as `public` and `static`:
 
@@ -1943,8 +1986,9 @@ Call `EventUtil.AsNonRenderingEventHandler` to call an event handler that doesn'
 
 In the following example:
 
-* Selecting the first button, which calls `HandleSelectRerender`, triggers a rerender.
-* Selecting the second button, which calls `HandleSelectWithoutRerender`, doesn't trigger a rerender.
+* Selecting the first button, which calls `HandleClick1`, triggers a rerender.
+* Selecting the second button, which calls `HandleClick2`, doesn't trigger a rerender.
+* Selecting the third button, which calls `HandleClick3`, doesn't trigger a rerender and uses [event arguments](xref:blazor/components/event-handling#event-arguments) (<xref:Microsoft.AspNetCore.Components.Web.MouseEventArgs>).
 
 `Pages/HandleSelect2.razor`:
 
@@ -1957,29 +2001,43 @@ In the following example:
     Last render DateTime: @dt
 </p>
 
-<button @onclick="HandleSelectRerender">
+<button @onclick="HandleClick1">
     Select me (Rerenders)
 </button>
 
-<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleSelectWithoutRerender)">
+<button @onclick="EventUtil.AsNonRenderingEventHandler(HandleClick2)">
     Select me (Avoids Rerender)
+</button>
+
+<button @onclick="EventUtil.AsNonRenderingEventHandler<MouseEventArgs>(HandleClick3)">
+    Select me (Avoids Rerender and uses <code>MouseEventArgs</code>)
 </button>
 
 @code {
     private DateTime dt = DateTime.Now;
 
-    private void HandleSelectRerender()
+    private void HandleClick1()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler triggers a rerender.");
     }
 
-    private void HandleSelectWithoutRerender()
+    private void HandleClick2()
     {
         dt = DateTime.Now;
 
         Logger.LogInformation("This event handler doesn't trigger a rerender.");
+    }
+    
+    private void HandleClick3(MouseEventArgs args)
+    {
+        dt = DateTime.Now;
+
+        Logger.LogInformation(
+            "This event handler doesn't trigger a rerender. " +
+            "Mouse coordinates: {ScreenX}:{ScreenY}", 
+            args.ScreenX, args.ScreenY);
     }
 }
 ```
@@ -2046,8 +2104,6 @@ If a large number of buttons are rendered using the preceding approach, renderin
     }
 }
 ```
-
-For more information, see [Blazor Binary message size send from server to client increases (dotnet/aspnetcore #17886)](https://github.com/dotnet/aspnetcore/issues/17886).
 
 ## Optimize JavaScript interop speed
 
@@ -2157,7 +2213,7 @@ Load assemblies at runtime when the assemblies are required by a route. For more
 
 When a Blazor WebAssembly app is published, the output is statically compressed during publish to reduce the app's size and remove the overhead for runtime compression. Blazor relies on the server to perform content negotiation and serve statically-compressed files.
 
-After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [Developer Tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
+After an app is deployed, verify that the app serves compressed files. Inspect the **Network** tab in a browser's [developer tools](https://developer.mozilla.org/docs/Glossary/Developer_Tools) and verify that the files are served with `Content-Encoding: br` (Brotli compression) or `Content-Encoding: gz` (Gzip compression). If the host isn't serving compressed files, follow the instructions in <xref:blazor/host-and-deploy/webassembly#compression>.
 
 ### Disable unused features
 
@@ -2183,4 +2239,4 @@ Blazor WebAssembly's runtime includes the following .NET features that can be di
 
 * By default, Blazor WebAssembly carries globalization resources required to display values, such as dates and currency, in the user's culture. If the app doesn't require localization, you may [configure the app to support the invariant culture](xref:blazor/globalization-localization#invariant-globalization), which is based on the `en-US` culture.
 
-::: moniker-end
+:::moniker-end

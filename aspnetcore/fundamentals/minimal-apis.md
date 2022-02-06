@@ -4,14 +4,19 @@ author: rick-anderson
 description: Provides an overview of minimal APIs in ASP.NET Core 6.0.
 ms.author: riande
 monikerRange: '>= aspnetcore-6.0'
-ms.date: 10/15/2021
+ms.date: 01/27/2022
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: fundamentals/minimal-apis
 ---
 
 # Minimal APIs overview
 
-This document provides an overview of minimal APIs. The minimal APIs consist of:
+This document:
+
+* Provides an overview of minimal APIs.
+* Is intended for experienced developers. For an introduction, see <xref:tutorials/min-web-api>
+
+The minimal APIs consist of:
 
 * New hosting APIs
 * <xref:Microsoft.AspNetCore.Builder.WebApplication> and <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder>
@@ -147,6 +152,14 @@ The following code writes a message to the log on application startup:
 
 For more information, see <xref:fundamentals/logging/index?view=aspnetcore-6.0>
 
+### Access the Dependency Injection (DI) container
+
+The following code shows how to get services from the DI container during application startup:
+
+[!code-csharp[](minimal-apis/samples/WebMinAPIs/Program.cs?name=snippet_dependencies)]
+
+For more information, see <xref:fundamentals/dependency-injection?view=aspnetcore-6.0>.
+
 ## WebApplicationBuilder
 
 This section contains sample code using <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder>.
@@ -236,7 +249,7 @@ By default, the web root is relative to the content root in the `wwwroot` folder
 
 ### Custom dependency injection (DI) container
 
-The following sample use [Autofac](https://autofac.readthedocs.io/latest/integration/aspnetcore.html)
+The following example uses [Autofac](https://autofac.readthedocs.io/en/latest/integration/aspnetcore.html):
 
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
@@ -268,22 +281,22 @@ For more information, see <xref:fundamentals/middleware/index?view=aspnetcore-6.
 
 The following table lists some of the middleware frequently used with minimal APIs.
 
-| Middleware   | Description | API |
-| ------------- | ------------- | -- |
-| [Authentication](xref:security/authentication/index?view=aspnetcore-6.0) | Provides authentication support.  | <xref:Microsoft.AspNetCore.Builder.AuthAppBuilderExtensions.UseAuthentication%2A> |
+| Middleware | Description | API |
+|--|--|--|
+| [Authentication](xref:security/authentication/index?view=aspnetcore-6.0) | Provides authentication support. | <xref:Microsoft.AspNetCore.Builder.AuthAppBuilderExtensions.UseAuthentication%2A> |
 | [Authorization](xref:security/authorization/introduction) | Provides authorization support. | <xref:Microsoft.AspNetCore.Builder.AuthorizationAppBuilderExtensions.UseAuthorization%2A> |
-|[CORS](xref:security/cors?view=aspnetcore-6.0)| Configures Cross-Origin Resource Sharing. | <xref:Microsoft.AspNetCore.Builder.CorsMiddlewareExtensions.UseCors%2A> |
+| [CORS](xref:security/cors?view=aspnetcore-6.0) | Configures Cross-Origin Resource Sharing. | <xref:Microsoft.AspNetCore.Builder.CorsMiddlewareExtensions.UseCors%2A> |
 | [Exception Handler](xref:web-api/handle-errors?view=aspnetcore-6.0) | Globally handles exceptions thrown by the middleware pipeline. | <xref:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler%2A> |
-| [Forwarded Headers](xref:fundamentals/middleware/index?view=aspnetcore-6.0#fhmo) | Forwards proxied headers onto the current request. | <xref:Microsoft.AspNetCore.Builder.ForwardedHeadersExtensions.UseForwardedHeaders%2A> |
+| [Forwarded Headers](xref:fundamentals/middleware/index?view=aspnetcore-6.0#forwarded-headers-middleware-order) | Forwards proxied headers onto the current request. | <xref:Microsoft.AspNetCore.Builder.ForwardedHeadersExtensions.UseForwardedHeaders%2A> |
 | [HTTPS Redirection](xref:security/enforcing-ssl?view=aspnetcore-6.0) | Redirects all HTTP requests to HTTPS. | <xref:Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions.UseHttpsRedirection%2A> |
 | [HTTP Strict Transport Security (HSTS)](xref:fundamentals/middleware/index?view=aspnetcore-6.0#middleware-order) | Security enhancement middleware that adds a special response header. | <xref:Microsoft.AspNetCore.Builder.HstsBuilderExtensions.UseHsts%2A> |
 | [Request Logging](xref:fundamentals/logging/index?view=aspnetcore-6.0) | Provides support for logging HTTP requests and responses. | <xref:Microsoft.AspNetCore.Builder.HttpLoggingBuilderExtensions.UseHttpLogging%2A> |
-| [W3C Request Logging](https://www.w3.org/TR/WD-logfile.html)| Provides support for logging HTTP requests and responses in the [W3C format](https://www.w3.org/TR/WD-logfile.html). | <xref:Microsoft.AspNetCore.Builder.HttpLoggingBuilderExtensions.UseW3CLogging%2A> |
+| [W3C Request Logging](https://www.w3.org/TR/WD-logfile.html) | Provides support for logging HTTP requests and responses in the [W3C format](https://www.w3.org/TR/WD-logfile.html). | <xref:Microsoft.AspNetCore.Builder.HttpLoggingBuilderExtensions.UseW3CLogging%2A> |
 | [Response Caching](xref:performance/caching/middleware) | Provides support for caching responses. | <xref:Microsoft.AspNetCore.Builder.ResponseCachingExtensions.UseResponseCaching%2A> |
 | [Response Compression](xref:performance/response-compression) | Provides support for compressing responses. | <xref:Microsoft.AspNetCore.Builder.ResponseCompressionBuilderExtensions.UseResponseCompression%2A> |
 | [Session](xref:fundamentals/app-state) | Provides support for managing user sessions. | <xref:Microsoft.AspNetCore.Builder.SessionMiddlewareExtensions.UseSession%2A> |
-| [Static Files](xref:fundamentals/static-files)| Provides support for serving static files and directory browsing. | <xref:Microsoft.AspNetCore.Builder.StaticFileExtensions.UseStaticFiles%2A>, <xref:Microsoft.AspNetCore.Builder.FileServerExtensions.UseFileServer%2A> |
-| [WebSockets](xref:fundamentals/websockets) | Enables the WebSockets protocol.	| <xref:Microsoft.AspNetCore.Builder.WebSocketMiddlewareExtensions.UseWebSockets%2A> |
+| [Static Files](xref:fundamentals/static-files) | Provides support for serving static files and directory browsing. | <xref:Microsoft.AspNetCore.Builder.StaticFileExtensions.UseStaticFiles%2A>, <xref:Microsoft.AspNetCore.Builder.FileServerExtensions.UseFileServer%2A> |
+| [WebSockets](xref:fundamentals/websockets) | Enables the WebSockets protocol. | <xref:Microsoft.AspNetCore.Builder.WebSocketMiddlewareExtensions.UseWebSockets%2A> |
 
 ## Request handling
 
@@ -297,7 +310,7 @@ A configured `WebApplication` supports `Map{Verb}` and <xref:Microsoft.AspNetCor
 
 ### Route Handlers
 
-Route handlers are methods that execute when the a route matches. Route handlers can be a function or any shape, including synchronous or asynchronous. Route handlers can be a lambda expression, a local function, an instance method or a static method.
+Route handlers are methods that execute when the route matches. Route handlers can be a function or any shape, including synchronous or asynchronous. Route handlers can be a lambda expression, a local function, an instance method or a static method.
 
 #### Lambda expression
 
@@ -374,10 +387,10 @@ app.Run();
 The following table demonstrates the preceding route templates and their behavior:
 
 | Route Template | Example Matching URI |
-| -------------- | -------------------- |
-| `/todos/{id:int} ` | `/todos/1` |
+|--|--|
+| `/todos/{id:int}` | `/todos/1` |
 | `/todos/{text}` | `/todos/something` |
-| `/posts/{slug:regex(^[a-z0-9_-]+$)}` |  `/posts/mypost` |
+| `/posts/{slug:regex(^[a-z0-9_-]+$)}` | `/posts/mypost` |
 
 For more information, see [Route constraint reference](xref:fundamentals/routing) in <xref:fundamentals/routing>.
 
@@ -484,11 +497,31 @@ See the [Binding Failures](#bf) section for more information.
 
 The following types are bound without explicit attributes:
 
-* `HttpContext` : The context which holds all the information about the current HTTP request or response.
-* `HttpRequest` : The HTTP request
-* `HttpResponse` : The HTTP response
-* <xref:System.Threading.CancellationToken> : The cancellation token associated with the current http request.
-* <xref:System.Security.Claims.ClaimsPrincipal> :  The user associated with the request (`HttpContext.User`).
+* <xref:Microsoft.AspNetCore.Http.HttpContext>: The context which holds all the information about the current HTTP request or response:
+
+  ```csharp
+  app.MapGet("/", (HttpContext context) => context.Response.WriteAsync("Hello World"));
+  ```
+
+* <xref:Microsoft.AspNetCore.Http.HttpRequest> and <xref:Microsoft.AspNetCore.Http.HttpResponse>: The HTTP request and HTTP response:
+
+  ```csharp
+  app.MapGet("/", (HttpRequest request, HttpResponse response) =>
+      response.WriteAsync($"Hello World {request.Query["name"]}"));
+  ```
+
+* <xref:System.Threading.CancellationToken>: The cancellation token associated with the current HTTP request:
+
+  ```csharp
+  app.MapGet("/", async (CancellationToken cancellationToken) => 
+      await MakeLongRunningRequestAsync(cancellationToken));
+  ```
+
+* <xref:System.Security.Claims.ClaimsPrincipal>: The user associated with the request, bound from <xref:Microsoft.AspNetCore.Http.HttpContext.User%2A?displayProperty=nameWithType>:
+
+  ```csharp
+  app.MapGet("/", (ClaimsPrincipal user) => user.Identity.Name);
+  ```
 
 ### Custom Binding
 
@@ -583,6 +616,17 @@ The preceding code:
     "Name": "Joe Smith"
   }
   ```
+
+### Read the request body
+
+Read the request body directly using a <xref:Microsoft.AspNetCore.Http.HttpContext> or <xref:Microsoft.AspNetCore.Http.HttpRequest> parameter:
+
+[!code-csharp[](minimal-apis/samples/WebMinAPIs/Program.cs?name=snippet_fileupload)]
+
+The preceding code:
+
+* Accesses the request body using <xref:Microsoft.AspNetCore.Http.HttpRequest.BodyReader?displayProperty=nameWithType>.
+* Copies the request body to a local file.
 
 ## Responses
 
@@ -688,9 +732,9 @@ We recommend adding an extension method to <xref:Microsoft.AspNetCore.Http.IResu
 
 ## Authorization
 
-Routes can be protected using authorization policies. These can be declared via the [`[Authorize]`](xref:Microsoft.AspNetCore.Authorization.AuthorizeAttribute) attribute or by using the <xref:Microsoft.AspNetCore.Builder.AuthorizationEndpointConventionBuilderExtensions.RequireAuthorization%2A> method.
+Routes can be protected using authorization policies. These can be declared via the [`[Authorize]`](xref:Microsoft.AspNetCore.Authorization.AuthorizeAttribute) attribute or by using the <xref:Microsoft.AspNetCore.Builder.AuthorizationEndpointConventionBuilderExtensions.RequireAuthorization%2A> method:
 
-[!code-csharp[](minimal-apis/samples/WebMinAPIs/Program.cs?name=snippet_auth1)]
+[!code-csharp[](minimal-apis/samples/WebRPauth/Program.cs?name=snippet_auth1&highlight=7-8,22)]
 
 The preceding code can be written with <xref:Microsoft.AspNetCore.Builder.AuthorizationEndpointConventionBuilderExtensions.RequireAuthorization%2A>:
 
@@ -698,7 +742,7 @@ The preceding code can be written with <xref:Microsoft.AspNetCore.Builder.Author
 
 The following sample uses [policy-based authorization](xref:security/authorization/policies):
 
-[!code-csharp[](minimal-apis/samples/WebMinAPIs/Program.cs?name=snippet_auth3)]
+[!code-csharp[](minimal-apis/samples/WebRPauth/Program.cs?name=snippet_auth3&range=7-8,22-26)]
 
 ### Allow unauthenticated users to access an endpoint
 
@@ -747,10 +791,6 @@ The following example uses the built-in result types to customize the response:
 The following code uses an [OpenAPI grouping tag](https://swagger.io/docs/specification/grouping-operations-with-tags/):
 
 [!code-csharp[](minimal-apis/samples/todo/Program.cs?name=snippet_grp)]
-
-### Describe request body
-
-[!code-csharp[](minimal-apis/samples/WebMinAPIs/Program.cs?name=snippet_fil2)]
 
 <!-- 
 # Differences between minimal APIs and APIs with controllers

@@ -15,7 +15,7 @@ By [Rick Anderson](https://twitter.com/RickAndMSFT) and [Kirk Larkin](https://tw
 
 This tutorial teaches the basics of building a web API with ASP.NET Core.
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 In this tutorial, you learn how to:
 
@@ -69,7 +69,10 @@ For Visual Studio for Mac, see the .NET 5 version of this tutorial.
 * Enter *Web API* in the search box.
 * Select the **ASP.NET Core Web API** template and select **Next**.
 * In the **Configure your new project dialog**, name the project *TodoApi* and select **Next**.
-* In the **Additional information** dialog, confirm that **Framework** is **.NET 6.0 (Long-term support)**, and select **Create**.
+* In the **Additional information** dialog:
+  * Confirm the **Framework** is **.NET 6.0 (Long-term support)**.
+  * Confirm the checkbox for **Use controllers(uncheck to use minimal APIs)** is checked.
+  * Select **Create**.
 
 # [Visual Studio Code](#tab/visual-studio-code)
 
@@ -151,7 +154,7 @@ Run the app:
 * Select the **.NET Core** task template.
 * Press Ctrl+F5.
 
-In a browser, go to following URL: [https://localhost:5001/swagger](https://localhost:5001/swagger)
+In a browser, navigate to `https://localhost:<port>/swagger`, where `<port>` is the randomly chosen port number displayed in the output.
 
 # [Visual Studio for Mac](#tab/visual-studio-mac)
 
@@ -174,7 +177,7 @@ If the Swagger page doesn't appear, see [this GitHub issue](https://github.com/d
 
 Swagger is used to generate useful documentation and help pages for web APIs. This tutorial focuses on creating a web API. For more information on Swagger, see <xref:tutorials/web-api-help-pages-using-swagger>.
 
-Copy and paste the **Request URL** in the browser:  `https://localhost:<port>/WeatherForecast`
+Copy and paste the **Request URL** in the browser:  `https://localhost:<port>/weatherforecast`
 
 JSON similar to the following example is returned:
 
@@ -343,7 +346,7 @@ Run the following commands from the project folder, that is, the `TodoApi` folde
 dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --prerelease
 dotnet add package Microsoft.EntityFrameworkCore.Design --prerelease
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer --prerelease
-dotnet tool install -g dotnet-aspnet-codegenerator --version 6.0.0-preview.7.21413.1
+dotnet tool install -g dotnet-aspnet-codegenerator --version 6.0.1
 dotnet aspnet-codegenerator controller -name TodoItemsController -async -api -m TodoItem -dc TodoContext -outDir Controllers
 ```
 
@@ -568,6 +571,7 @@ Date: Tue, 07 Sep 2021 21:43:00 GMT
 Server: Kestrel
 ```
 
+<a name="over-post"></a>
 ## Prevent over-posting
 
 Currently the sample app exposes the entire `TodoItem` object. Production apps typically limit the data that's input and returned using a subset of the model. There are multiple reasons behind this, and security is a major one. The subset of a model is usually referred to as a Data Transfer Object (DTO), input model, or view model. **DTO** is used in this tutorial.
@@ -601,9 +605,9 @@ Verify you can't post or get the secret field.
 
 See [Tutorial: Call an ASP.NET Core web API with JavaScript](xref:tutorials/web-api-javascript).
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="= aspnetcore-5.0"
+:::moniker range="= aspnetcore-5.0"
 
 In this tutorial, you learn how to:
 
@@ -745,7 +749,7 @@ If the Swagger page doesn't appear, see [this GitHub issue](https://github.com/d
 -->
 Swagger is used to generate useful documentation and help pages for web APIs. This tutorial focuses on creating a web API. For more information on Swagger, see <xref:tutorials/web-api-help-pages-using-swagger>.
 
-Copy and paste the **Request URL** in the browser:  `https://localhost:<port>/WeatherForecast`
+Copy and paste the **Request URL** in the browser:  `https://localhost:<port>/weatherforecast`
 
 JSON similar to the following is returned:
 
@@ -1122,9 +1126,9 @@ Verify you can't post or get the secret field.
 
 See [Tutorial: Call an ASP.NET Core web API with JavaScript](xref:tutorials/web-api-javascript).
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 In this tutorial, you learn how to:
 
@@ -1232,17 +1236,17 @@ The project template creates a `WeatherForecast` API. Call the `Get` method from
 
 # [Visual Studio](#tab/visual-studio)
 
-Press Ctrl+F5 to run the app. Visual Studio launches a browser and navigates to `https://localhost:<port>/WeatherForecast`, where `<port>` is a randomly chosen port number.
+Press Ctrl+F5 to run the app. Visual Studio launches a browser and navigates to `https://localhost:<port>/weatherforecast`, where `<port>` is a randomly chosen port number.
 
 If you get a dialog box that asks if you should trust the IIS Express certificate, select **Yes**. In the **Security Warning** dialog that appears next, select **Yes**.
 
 # [Visual Studio Code](#tab/visual-studio-code)
 
-Press Ctrl+F5 to run the app. In a browser, go to following URL: `https://localhost:5001/WeatherForecast`.
+Press Ctrl+F5 to run the app. In a browser, go to following URL: `https://localhost:5001/weatherforecast`.
 
 # [Visual Studio for Mac](#tab/visual-studio-mac)
 
-Select **Run** > **Start Debugging** to launch the app. Visual Studio for Mac launches a browser and navigates to `https://localhost:<port>`, where `<port>` is a randomly chosen port number. An HTTP 404 (Not Found) error is returned. Append `/WeatherForecast` to the URL (change the URL to `https://localhost:<port>/WeatherForecast`).
+Select **Run** > **Start Debugging** to launch the app. Visual Studio for Mac launches a browser and navigates to `https://localhost:<port>`, where `<port>` is a randomly chosen port number. An HTTP 404 (Not Found) error is returned. Append `/weatherforecast` to the URL (change the URL to `https://localhost:<port>/weatherforecast`).
 
 ---
 
@@ -1607,13 +1611,13 @@ Verify you can't post or get the secret field.
 
 See [Tutorial: Call an ASP.NET Core web API with JavaScript](xref:tutorials/web-api-javascript).
 
-::: moniker-end
+:::moniker-end
 
 <a name="auth"></a>
 
 ## Add authentication support to a web API
 
-[!INCLUDE[](~/includes/IdentityServer4.md)]
+[!INCLUDE[](~/includes/DuendeIdentityServer.md)]
 
 ## Additional resources
 

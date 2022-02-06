@@ -13,7 +13,7 @@ uid: mvc/models/file-uploads
 
 By [Steve Smith](https://ardalis.com/) and [Rutger Storm](https://github.com/rutix)
 
-::: moniker range=">= aspnetcore-5.0"
+:::moniker range=">= aspnetcore-5.0"
 
 ASP.NET Core supports uploading one or more files using buffered model binding for smaller files and unbuffered streaming for larger files.
 
@@ -399,7 +399,7 @@ The preceding example is similar to a scenario demonstrated in the sample app:
 
 ### Upload large files with streaming
 
-The following example demonstrates how to use JavaScript to stream a file to a controller action. The file's antiforgery token is generated using a custom filter attribute and passed to the client HTTP headers instead of in the request body. Because the action method processes the uploaded data directly, form model binding is disabled by another custom filter. Within the action, the form's contents are read using a `MultipartReader`, which reads each individual `MultipartSection`, processing the file or storing the contents as appropriate. After the multipart sections are read, the action performs its own model binding.
+The [3.1 example](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/mvc/models/file-uploads/samples/3.x/SampleApp/Pages/StreamedSingleFileUploadDb.cshtml) demonstrates how to use JavaScript to stream a file to a controller action. The file's antiforgery token is generated using a custom filter attribute and passed to the client HTTP headers instead of in the request body. Because the action method processes the uploaded data directly, form model binding is disabled by another custom filter. Within the action, the form's contents are read using a `MultipartReader`, which reads each individual `MultipartSection`, processing the file or storing the contents as appropriate. After the multipart sections are read, the action performs its own model binding.
 
 The initial page response loads the form and saves an antiforgery token in a cookie (via the `GenerateAntiforgeryTokenCookieAttribute` attribute). The attribute uses ASP.NET Core's built-in [antiforgery support](xref:security/anti-request-forgery) to set a cookie with a request token:
 
@@ -735,9 +735,9 @@ If the controller is accepting uploaded files using <xref:Microsoft.AspNetCore.H
 
 The examples in this topic rely upon <xref:System.IO.MemoryStream> to hold the uploaded file's content. The size limit of a `MemoryStream` is `int.MaxValue`. If the app's file upload scenario requires holding file content larger than 50 MB, use an alternative approach that doesn't rely upon a single `MemoryStream` for holding an uploaded file's content.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-3.0 < aspnetcore-5.0"
+:::moniker range=">= aspnetcore-3.0 < aspnetcore-5.0"
 
 ASP.NET Core supports uploading one or more files using buffered model binding for smaller files and unbuffered streaming for larger files.
 
@@ -1470,9 +1470,9 @@ If the controller is accepting uploaded files using <xref:Microsoft.AspNetCore.H
 
 The examples in this topic rely upon <xref:System.IO.MemoryStream> to hold the uploaded file's content. The size limit of a `MemoryStream` is `int.MaxValue`. If the app's file upload scenario requires holding file content larger than 50 MB, use an alternative approach that doesn't rely upon a single `MemoryStream` for holding an uploaded file's content.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-3.0"
+:::moniker range="< aspnetcore-3.0"
 
 ASP.NET Core supports uploading one or more files using buffered model binding for smaller files and unbuffered streaming for larger files.
 
@@ -2200,17 +2200,17 @@ If the controller is accepting uploaded files using <xref:Microsoft.AspNetCore.H
 
 The examples in this topic rely upon <xref:System.IO.MemoryStream> to hold the uploaded file's content. The size limit of a `MemoryStream` is `int.MaxValue`. If the app's file upload scenario requires holding file content larger than 50 MB, use an alternative approach that doesn't rely upon a single `MemoryStream` for holding an uploaded file's content.
 
-::: moniker-end
+:::moniker-end
 
 
 ## Additional resources
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 * [HTTP connection request draining](xref:fundamentals/servers/kestrel#http11-request-draining)
-::: moniker-end
-::: moniker range=">= aspnetcore-5.0"
+:::moniker-end
+:::moniker range=">= aspnetcore-5.0"
 * [HTTP connection request draining](xref:fundamentals/servers/kestrel/request-draining)
-::: moniker-end
+:::moniker-end
 
 * [Unrestricted File Upload](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
 * [Azure Security: Security Frame: Input Validation | Mitigations](/azure/security/azure-security-threat-modeling-tool-input-validation)

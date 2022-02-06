@@ -21,7 +21,7 @@ The model classes created are known as ***POCO*** classes, from **P**lain **O**l
 
 In this tutorial,  model classes are created first, and EF Core creates the database.
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 ## Add a data model class
 
@@ -56,7 +56,7 @@ The <xref:System.ComponentModel.DataAnnotations.DataType> attribute on `ReleaseD
 
 [DataAnnotations](/dotnet/api/system.componentmodel.dataannotations) are covered in a later tutorial.
 
-he question mark after `string` indicates that the property is nullable. For more information, see [Nullable reference types](/dotnet/csharp/nullable-references). 
+The question mark after `string` indicates that the property is nullable. For more information, see [Nullable reference types](/dotnet/csharp/nullable-references). 
 
 ## Add NuGet packages
 
@@ -71,8 +71,8 @@ From the **Tools** menu, select **NuGet Package Manager** > **Package Manager Co
 In the PMC, run the following command:
 
 ```powershell
-Install-Package Microsoft.EntityFrameworkCore.Design -IncludePrerelease
-Install-Package Microsoft.EntityFrameworkCore.SqlServer -IncludePrerelease
+Install-Package Microsoft.EntityFrameworkCore.Design
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
 ```
 
 The preceding commands add:
@@ -245,13 +245,15 @@ The scaffolded pages can't be used yet because the database doesn't exist. Runni
 
 ## Build the app
 
-Build the app. The compiler generates several warnings about how `null` values are handled. The released version of .NET 6 will scaffold code without these warnings. See [this GitHub issue](https://github.com/dotnet/Scaffolding/issues/1594) and [Nullable reference types](/dotnet/csharp/nullable-references) for more information.
+Build the app. The compiler generates several warnings about how `null` values are handled. See [this GitHub issue](https://github.com/dotnet/Scaffolding/issues/1594) and [Nullable reference types](/dotnet/csharp/nullable-references) for more information.
 
 To eliminate the warnings from nullable reference types, remove the following line from the *MvcMovie.csproj* file:
 
 ```xml
 <Nullable>enable</Nullable>
 ```
+
+We hope to fix this issue in the next release.
 
 ## Initial migration
 
@@ -470,8 +472,6 @@ The `@model` directive allows access to the list of movies that the controller p
 
 Because the `Model` object is strongly typed as an `IEnumerable<Movie>` object, each item in the loop is typed as `Movie`. Among other benefits, the compiler validates the types used in the code.
 
-[!INCLUDE[s](~/includes/sql-log.md)]
-
 ## Additional resources
 
 * [Tag Helpers](xref:mvc/views/tag-helpers/intro)
@@ -481,9 +481,9 @@ Because the `Model` object is strongly typed as an `IEnumerable<Movie>` object, 
 > [Previous: Adding a View](adding-view.md)
 > [Next: Working with SQL](working-with-sql.md)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="= aspnetcore-5.0"
+:::moniker range="= aspnetcore-5.0"
 
 ## Add a data model class
 
@@ -912,9 +912,9 @@ Because the `Model` object is strongly typed as an `IEnumerable<Movie>` object, 
 > [Previous: Adding a View](adding-view.md)
 > [Next: Working with SQL](working-with-sql.md)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-3.0 < aspnetcore-5.0"
+:::moniker range=">= aspnetcore-3.0 < aspnetcore-5.0"
 
 ## Add a data model class
 
@@ -1298,4 +1298,4 @@ Because the `Model` object is strongly typed (as an `IEnumerable<Movie>` object)
 > [Previous Adding a View](adding-view.md)
 > [Next Working with SQL](working-with-sql.md)
 
-::: moniker-end
+:::moniker-end

@@ -5,13 +5,13 @@ description: Learn how to configure Blazor WebAssembly for additional security s
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 10/27/2020
+ms.date: 11/18/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/security/webassembly/additional-scenarios
 ---
 # ASP.NET Core Blazor WebAssembly additional security scenarios
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 ## Attach tokens to outgoing requests
 
@@ -94,12 +94,14 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
 }
 ```
 
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
+
 In `Program.cs`, `CustomAuthorizationMessageHandler` is registered as a scoped service and is configured as the <xref:System.Net.Http.DelegatingHandler> for outgoing <xref:System.Net.Http.HttpResponseMessage> instances made by a named <xref:System.Net.Http.HttpClient>:
 
 ```csharp
 builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 
-// AddHttpClient is an extension in Microsoft.Http.Extensions
+// AddHttpClient is an extension in Microsoft.Extensions.Http
 builder.Services.AddHttpClient("WebAPI",
         client => client.BaseAddress = new Uri("https://www.example.com/base"))
     .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
@@ -155,6 +157,8 @@ builder.Services.AddScoped(sp => new HttpClient(
         BaseAddress = new Uri("https://www.example.com/base")
     });
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -248,6 +252,8 @@ builder.Services.AddHttpClient<WeatherForecastClient>(
         authorizedUrls: new [] { "https://www.example.com/base" },
         scopes: new[] { "example.read", "example.write" }));
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -814,7 +820,7 @@ Prerendering content that requires authentication and authorization isn't curren
 * Prerenders paths for which authorization isn't required.
 * Doesn't prerender paths for which authorization is required.
 
-For the client (**`Client`**) app's `Program.cs`, factor common service registrations into a separate method (for example, `ConfigureCommonServices`). Common services are those that the developer registers for use by both the client and server (**`Server`**) apps.
+For the client (**`Client`**) app's `Program.cs`, factor common service registrations into a separate method (for example, create a `ConfigureCommonServices` method in the **`Client`** project). Common services are those that the developer registers for use by both the client and server (**`Server`**) apps.
 
 ```csharp
 public static void ConfigureCommonServices(IServiceCollection services)
@@ -836,7 +842,7 @@ ConfigureCommonServices(builder.Services);
 await builder.Build().RunAsync();
 ```
 
-In the server app's `Program.cs` file, register the following additional services and call `ConfigureCommonServices`:
+In the **`Server`** app's `Program.cs` file, register the following additional services and call `ConfigureCommonServices`:
 
 ```csharp
 using Microsoft.AspNetCore.Components.Authorization;
@@ -853,32 +859,32 @@ builder.Services.AddScoped<SignOutSessionStateManager>();
 Client.Program.ConfigureCommonServices(services);
 ```
 
-In the server app's `Program.cs`, replace [`app.MapFallbackToFile("index.html")`](xref:Microsoft.AspNetCore.Builder.StaticFilesEndpointRouteBuilderExtensions.MapFallbackToFile%2A) with [`app.MapFallbackToPage("/_Host")`](xref:Microsoft.AspNetCore.Builder.RazorPagesEndpointRouteBuilderExtensions.MapFallbackToPage%2A):
+In the **`Server`** app's `Program.cs` file, replace [`app.MapFallbackToFile("index.html")`](xref:Microsoft.AspNetCore.Builder.StaticFilesEndpointRouteBuilderExtensions.MapFallbackToFile%2A) with [`app.MapFallbackToPage("/_Host")`](xref:Microsoft.AspNetCore.Builder.RazorPagesEndpointRouteBuilderExtensions.MapFallbackToPage%2A):
 
 ```csharp
 app.MapControllers();
 app.MapFallbackToPage("/_Host");
 ```
 
-In the server app, create a `Pages` folder if it doesn't exist. Create a `_Host.cshtml` page inside the server app's `Pages` folder. Paste the contents from the client app's `wwwroot/index.html` file into the `Pages/_Host.cshtml` file. Update the file's contents:
+In the **`Server`** app, create a `Pages` folder if it doesn't exist. Create a `_Host.cshtml` page inside the **`Server`** app's `Pages` folder. Paste the contents from the client app's `wwwroot/index.html` file into the `Pages/_Host.cshtml` file. Update the file's contents:
 
 * Add `@page "_Host"` to the top of the file.
 * Replace the `<div id="app">Loading...</div>` tag with the following:
 
   ```cshtml
   <div id="app">
-      @if (!HttpContext.Request.Path.StartsWithSegments("/authentication"))
-      {
-          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
-              render-mode="Static" />
-      }
-      else
+      @if (HttpContext.Request.Path.StartsWithSegments("/authentication"))
       {
           <text>Loading...</text>
       }
+      else
+      {
+          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
+              render-mode="WebAssemblyPrerendered" />
+      }
   </div>
   ```
-  
+
   In the preceding example, the placeholder `{CLIENT APP ASSEMBLY NAME}` is the client app's assembly name (for example `BlazorSample.Client`).
 
 ## Options for hosted apps and third-party login providers
@@ -930,8 +936,12 @@ While this approach requires an extra network hop through the server to call a t
 The authentication library and [Blazor project templates](xref:blazor/project-structure) use OpenID Connect (OIDC) v1.0 endpoints. To use a v2.0 endpoint, configure the JWT Bearer <xref:Microsoft.AspNetCore.Builder.JwtBearerOptions.Authority?displayProperty=nameWithType> option. In the following example, AAD is configured for v2.0 by appending a `v2.0` segment to the <xref:Microsoft.AspNetCore.Builder.JwtBearerOptions.Authority> property:
 
 ```csharp
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+...
+
 builder.Services.Configure<JwtBearerOptions>(
-    AzureADDefaults.JwtBearerAuthenticationScheme, 
+    JwtBearerDefaults.AuthenticationScheme, 
     options =>
     {
         options.Authority += "/v2.0";
@@ -1045,9 +1055,9 @@ If an app requires a custom version of the [Microsoft Authentication Library for
 * <xref:blazor/security/webassembly/graph-api>
 * [`HttpClient` and `HttpRequestMessage` with Fetch API request options](xref:blazor/call-web-api#httpclient-and-httprequestmessage-with-fetch-api-request-options)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 ## Attach tokens to outgoing requests
 
@@ -1129,6 +1139,8 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
 }
 ```
 
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
+
 In `Program.cs`, `CustomAuthorizationMessageHandler` is registered as a scoped service and is configured as the <xref:System.Net.Http.DelegatingHandler> for outgoing <xref:System.Net.Http.HttpResponseMessage> instances made by a named <xref:System.Net.Http.HttpClient>:
 
 ```csharp
@@ -1189,6 +1201,8 @@ builder.Services.AddScoped(sp => new HttpClient(
         BaseAddress = new Uri("https://www.example.com/base")
     });
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -1280,6 +1294,8 @@ builder.Services.AddHttpClient<WeatherForecastClient>(
         authorizedUrls: new [] { "https://www.example.com/base" },
         scopes: new[] { "example.read", "example.write" }));
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -1908,18 +1924,18 @@ In the server app, create a `Pages` folder if it doesn't exist. Create a `_Host.
 
   ```cshtml
   <div id="app">
-      @if (!HttpContext.Request.Path.StartsWithSegments("/authentication"))
-      {
-          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
-              render-mode="Static" />
-      }
-      else
+      @if (HttpContext.Request.Path.StartsWithSegments("/authentication"))
       {
           <text>Loading...</text>
       }
+      else
+      {
+          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
+              render-mode="WebAssemblyPrerendered" />
+      }
   </div>
   ```
-  
+
   In the preceding example, the placeholder `{CLIENT APP ASSEMBLY NAME}` is the client app's assembly name (for example `BlazorSample.Client`).
 
 ## Options for hosted apps and third-party login providers
@@ -1971,8 +1987,12 @@ While this approach requires an extra network hop through the server to call a t
 The authentication library and [Blazor project templates](xref:blazor/project-structure) use OpenID Connect (OIDC) v1.0 endpoints. To use a v2.0 endpoint, configure the JWT Bearer <xref:Microsoft.AspNetCore.Builder.JwtBearerOptions.Authority?displayProperty=nameWithType> option. In the following example, AAD is configured for v2.0 by appending a `v2.0` segment to the <xref:Microsoft.AspNetCore.Builder.JwtBearerOptions.Authority> property:
 
 ```csharp
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+...
+
 builder.Services.Configure<JwtBearerOptions>(
-    AzureADDefaults.JwtBearerAuthenticationScheme, 
+    JwtBearerDefaults.AuthenticationScheme, 
     options =>
     {
         options.Authority += "/v2.0";
@@ -2086,9 +2106,9 @@ If an app requires a custom version of the [Microsoft Authentication Library for
 * <xref:blazor/security/webassembly/graph-api>
 * [`HttpClient` and `HttpRequestMessage` with Fetch API request options](xref:blazor/call-web-api#httpclient-and-httprequestmessage-with-fetch-api-request-options)
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 ## Attach tokens to outgoing requests
 
@@ -2170,6 +2190,8 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
 }
 ```
 
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
+
 In `Program.cs`, `CustomAuthorizationMessageHandler` is registered as a scoped service and is configured as the <xref:System.Net.Http.DelegatingHandler> for outgoing <xref:System.Net.Http.HttpResponseMessage> instances made by a named <xref:System.Net.Http.HttpClient>:
 
 ```csharp
@@ -2230,6 +2252,8 @@ builder.Services.AddScoped(sp => new HttpClient(
         BaseAddress = new Uri("https://www.example.com/base")
     });
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -2321,6 +2345,8 @@ builder.Services.AddHttpClient<WeatherForecastClient>(
         authorizedUrls: new [] { "https://www.example.com/base" },
         scopes: new[] { "example.read", "example.write" }));
 ```
+
+In the preceding code, the scopes `example.read` and `example.write` are generic examples not meant to reflect valid scopes for any particular provider. For apps that use Azure Active Directory, scopes are similar to `api://41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (trusted publisher domain) or `https://contoso.onmicrosoft.com/41451fa7-82d9-4673-8fa5-69eff5a761fd/API.Access` (untrusted publisher domain).
 
 For a hosted Blazor solution based on the [Blazor WebAssembly project template](xref:blazor/project-structure), <xref:Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment.BaseAddress?displayProperty=nameWithType> is assigned to the following by default:
 
@@ -2949,18 +2975,18 @@ In the server app, create a `Pages` folder if it doesn't exist. Create a `_Host.
 
   ```cshtml
   <app>
-      @if (!HttpContext.Request.Path.StartsWithSegments("/authentication"))
-      {
-          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
-              render-mode="Static" />
-      }
-      else
+      @if (HttpContext.Request.Path.StartsWithSegments("/authentication"))
       {
           <text>Loading...</text>
       }
+      else
+      {
+          <component type="typeof({CLIENT APP ASSEMBLY NAME}.App)" 
+              render-mode="WebAssemblyPrerendered" />
+      }
   </app>
   ```
-  
+
   In the preceding example, the placeholder `{CLIENT APP ASSEMBLY NAME}` is the client app's assembly name (for example `BlazorSample.Client`).
 
 ## Options for hosted apps and third-party login providers
@@ -3127,4 +3153,4 @@ If an app requires a custom version of the [Microsoft Authentication Library for
 * <xref:blazor/security/webassembly/graph-api>
 * [`HttpClient` and `HttpRequestMessage` with Fetch API request options](xref:blazor/call-web-api#httpclient-and-httprequestmessage-with-fetch-api-request-options)
 
-::: moniker-end
+:::moniker-end

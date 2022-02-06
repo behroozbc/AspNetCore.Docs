@@ -5,13 +5,13 @@ description: Learn how to debug Blazor apps.
 monikerRange: '>= aspnetcore-3.1'
 ms.author: riande
 ms.custom: mvc
-ms.date: 09/24/2021
+ms.date: 11/09/2021
 no-loc: [Home, Privacy, Kestrel, appsettings.json, "ASP.NET Core Identity", cookie, Cookie, Blazor, "Blazor Server", "Blazor WebAssembly", "Identity", "Let's Encrypt", Razor, SignalR]
 uid: blazor/debug
 ---
 # Debug ASP.NET Core Blazor WebAssembly
 
-::: moniker range=">= aspnetcore-6.0"
+:::moniker range=">= aspnetcore-6.0"
 
 Blazor WebAssembly apps can be debugged using the browser dev tools in Chromium-based browsers (Edge/Chrome). You can also debug your app using the following integrated development environments (IDEs):
 
@@ -92,7 +92,7 @@ To debug a Blazor WebAssembly app in Visual Studio:
    > * Configure Visual Studio to launch the browser with the user's profile. For more information on this approach, see [Blazor WASM Debugging in VS launches Edge with a separate user data directory (dotnet/aspnetcore #20915)](https://github.com/dotnet/aspnetcore/issues/20915#issuecomment-614933322).
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. In the `*Client*` app, set a breakpoint on the `currentCount++;` line in `Pages/Counter.razor`.
 1. In the browser, navigate to `Counter` page and select the **Click me** button to hit the breakpoint.
@@ -174,12 +174,21 @@ For information on configuring VS Code assets in the `.vscode` folder, see the *
    * When using the [C# for Visual Studio Code Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) **version 1.23.9 or later**, confirm that the latest [Blazor WASM Debugging Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.blazorwasm-companion) is installed. To inspect the installed extensions, open **View** > **Extensions** from the menu bar or select the **Extensions** icon in the **Activity** sidebar.
    * Reload the window.
 
+1. Create a `.vscode/launch.json` file with the following configuration. Replace the `{PORT}` placeholder with the port configured in `Properties/launchSettings.json`:
+
+   ```json
+   {
+     "name": "Launch and Debug",
+     "type": "blazorwasm",
+     "request": "launch",
+     "url": "https://localhost:{PORT}"
+   }
+   ```
+
 1. Start debugging using the <kbd>F5</kbd> keyboard shortcut or the menu item.
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
-
-1. When prompted, select the **Blazor WebAssembly Debug** option to start debugging.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. The standalone app is launched, and a debugging browser is opened.
 
@@ -201,13 +210,14 @@ For guidance on configuring VS Code assets in the `.vscode` folder and where to 
 
 ## Attach to an existing debugging session
 
-To attach to a running Blazor app, create a `launch.json` file with the following configuration:
+To attach to a running Blazor app, create a `.vscode/launch.json` file with the following configuration. Replace the `{URL}` placeholder with the URL where the app is running:
 
 ```json
 {
+  "name": "Attach and Debug"
   "type": "blazorwasm",
   "request": "attach",
-  "name": "Attach to Existing Blazor WebAssembly Application"
+  "url": "{URL}"
 }
 ```
 
@@ -221,7 +231,7 @@ The following launch configuration options are supported for the `blazorwasm` de
 | Option    | Description |
 | --------- | ----------- |
 | `request` | Use `launch` to launch and attach a debugging session to a Blazor WebAssembly app or `attach` to attach a debugging session to an already-running app. |
-| `url`     | The URL to open in the browser when debugging. |
+| `url`     | The URL to open in the browser when debugging. Defaults to `https://localhost:5001`. If the app is running at a different URL, an `about:blank` tab launches in the browser. |
 | `browser` | The browser to launch for the debugging session. Set to `edge` or `chrome`. Defaults to `chrome`. |
 | `trace`   | Used to generate logs from the JS debugger. Set to `true` to generate logs. |
 | `hosted`  | Must be set to `true` if launching and debugging a hosted Blazor WebAssembly app. |
@@ -230,29 +240,6 @@ The following launch configuration options are supported for the `blazorwasm` de
 | `program` | A reference to the executable to run the server of the hosted app. Must be set if `hosted` is `true`. |
 | `cwd`     | The working directory to launch the app under. Must be set if `hosted` is `true`. |
 | `env`     | The environment variables to provide to the launched process. Only applicable if `hosted` is set to `true`. |
-
-## Example launch configurations
-
-### Launch and debug a standalone Blazor WebAssembly app
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "launch",
-  "name": "Launch and Debug"
-}
-```
-
-### Attach to a running app at a specified URL
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "attach",
-  "name": "Attach and Debug",
-  "url": "https://localhost:7268"
-}
-```
 
 # [Visual Studio for Mac](#tab/visual-studio-mac)
 
@@ -389,9 +376,9 @@ VsRegEdit.exe set "<VSInstallFolder>" HKCU JSDebugger\Options\Debugging "BlazorT
 
 The `{TIMEOUT}` placeholder in the preceding command is in milliseconds. For example, one minute is assigned as `60000`.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
+:::moniker range=">= aspnetcore-5.0 < aspnetcore-6.0"
 
 Blazor WebAssembly apps can be debugged using the browser dev tools in Chromium-based browsers (Edge/Chrome). You can also debug your app using the following integrated development environments (IDEs):
 
@@ -472,7 +459,7 @@ To debug a Blazor WebAssembly app in Visual Studio:
    > * Configure Visual Studio to launch the browser with the user's profile. For more information on this approach, see [Blazor WASM Debugging in VS launches Edge with a separate user data directory (dotnet/aspnetcore #20915)](https://github.com/dotnet/aspnetcore/issues/20915#issuecomment-614933322).
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. In the `*Client*` app, set a breakpoint on the `currentCount++;` line in `Pages/Counter.razor`.
 1. In the browser, navigate to `Counter` page and select the **Click me** button to hit the breakpoint.
@@ -554,12 +541,21 @@ For information on configuring VS Code assets in the `.vscode` folder, see the *
    * When using the [C# for Visual Studio Code Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) **version 1.23.9 or later**, confirm that the latest [Blazor WASM Debugging Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.blazorwasm-companion) is installed. To inspect the installed extensions, open **View** > **Extensions** from the menu bar or select the **Extensions** icon in the **Activity** sidebar.
    * Reload the window.
 
+1. Create a `.vscode/launch.json` file with the following configuration. Replace the `{PORT}` placeholder with the port configured in `Properties/launchSettings.json`:
+
+   ```json
+   {
+     "name": "Launch and Debug",
+     "type": "blazorwasm",
+     "request": "launch",
+     "url": "https://localhost:{PORT}"
+   }
+   ```
+
 1. Start debugging using the <kbd>F5</kbd> keyboard shortcut or the menu item.
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
-
-1. When prompted, select the **Blazor WebAssembly Debug** option to start debugging.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. The standalone app is launched, and a debugging browser is opened.
 
@@ -629,13 +625,14 @@ The **`Server`** project's `Properties/launchSettings.json` file includes the `i
 
 ## Attach to an existing debugging session
 
-To attach to a running Blazor app, create a `launch.json` file with the following configuration:
+To attach to a running Blazor app, create a `.vscode/launch.json` file with the following configuration. Replace the `{URL}` placeholder with the URL where the app is running:
 
 ```json
 {
+  "name": "Attach and Debug"
   "type": "blazorwasm",
   "request": "attach",
-  "name": "Attach to Existing Blazor WebAssembly Application"
+  "url": "{URL}"
 }
 ```
 
@@ -649,7 +646,7 @@ The following launch configuration options are supported for the `blazorwasm` de
 | Option    | Description |
 | --------- | ----------- |
 | `request` | Use `launch` to launch and attach a debugging session to a Blazor WebAssembly app or `attach` to attach a debugging session to an already-running app. |
-| `url`     | The URL to open in the browser when debugging. Defaults to `https://localhost:5001`. |
+| `url`     | The URL to open in the browser when debugging. Defaults to `https://localhost:5001`. If the app is running at a different URL, an `about:blank` tab launches in the browser. |
 | `browser` | The browser to launch for the debugging session. Set to `edge` or `chrome`. Defaults to `chrome`. |
 | `trace`   | Used to generate logs from the JS debugger. Set to `true` to generate logs. |
 | `hosted`  | Must be set to `true` if launching and debugging a hosted Blazor WebAssembly app. |
@@ -658,29 +655,6 @@ The following launch configuration options are supported for the `blazorwasm` de
 | `program` | A reference to the executable to run the server of the hosted app. Must be set if `hosted` is `true`. |
 | `cwd`     | The working directory to launch the app under. Must be set if `hosted` is `true`. |
 | `env`     | The environment variables to provide to the launched process. Only applicable if `hosted` is set to `true`. |
-
-## Example launch configurations
-
-### Launch and debug a standalone Blazor WebAssembly app
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "launch",
-  "name": "Launch and Debug"
-}
-```
-
-### Attach to a running app at a specified URL
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "attach",
-  "name": "Attach and Debug",
-  "url": "http://localhost:5000"
-}
-```
 
 # [Visual Studio for Mac](#tab/visual-studio-mac)
 
@@ -817,9 +791,9 @@ VsRegEdit.exe set "<VSInstallFolder>" HKCU JSDebugger\Options\Debugging "BlazorT
 
 The `{TIMEOUT}` placeholder in the preceding command is in milliseconds. For example, one minute is assigned as `60000`.
 
-::: moniker-end
+:::moniker-end
 
-::: moniker range="< aspnetcore-5.0"
+:::moniker range="< aspnetcore-5.0"
 
 Blazor WebAssembly apps can be debugged using the browser dev tools in Chromium-based browsers (Edge/Chrome). You can also debug your app using the following integrated development environments (IDEs):
 
@@ -900,7 +874,7 @@ To debug a Blazor WebAssembly app in Visual Studio:
    > * Configure Visual Studio to launch the browser with the user's profile. For more information on this approach, see [Blazor WASM Debugging in VS launches Edge with a separate user data directory (dotnet/aspnetcore #20915)](https://github.com/dotnet/aspnetcore/issues/20915#issuecomment-614933322).
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. In the `*Client*` app, set a breakpoint on the `currentCount++;` line in `Pages/Counter.razor`.
 1. In the browser, navigate to `Counter` page and select the **Click me** button to hit the breakpoint.
@@ -982,12 +956,21 @@ For information on configuring VS Code assets in the `.vscode` folder, see the *
    * When using the [C# for Visual Studio Code Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) **version 1.23.9 or later**, confirm that the latest [Blazor WASM Debugging Extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.blazorwasm-companion) is installed. To inspect the installed extensions, open **View** > **Extensions** from the menu bar or select the **Extensions** icon in the **Activity** sidebar.
    * Reload the window.
 
+1. Create a `.vscode/launch.json` file with the following configuration. Replace the `{PORT}` placeholder with the port configured in `Properties/launchSettings.json`:
+
+   ```json
+   {
+     "name": "Launch and Debug",
+     "type": "blazorwasm",
+     "request": "launch",
+     "url": "https://localhost:{PORT}"
+   }
+   ```
+
 1. Start debugging using the <kbd>F5</kbd> keyboard shortcut or the menu item.
 
    > [!NOTE]
-   > **Start Without Debugging** (<kbd>Ctrl</kbd>+<kbd>F5</kbd>) isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
-
-1. When prompted, select the **Blazor WebAssembly Debug** option to start debugging.
+   > **Start Without Debugging** [<kbd>Ctrl</kbd>+<kbd>F5</kbd> (Windows) or <kbd>⌘</kbd>+<kbd>F5</kbd> (macOS)] isn't supported. When the app is run in Debug configuration, debugging overhead always results in a small performance reduction.
 
 1. The standalone app is launched, and a debugging browser is opened.
 
@@ -1057,13 +1040,14 @@ The **`Server`** project's `Properties/launchSettings.json` file includes the `i
 
 ## Attach to an existing debugging session
 
-To attach to a running Blazor app, create a `launch.json` file with the following configuration:
+To attach to a running Blazor app, create a `.vscode/launch.json` file with the following configuration. Replace the `{URL}` placeholder with the URL where the app is running:
 
 ```json
 {
+  "name": "Attach and Debug"
   "type": "blazorwasm",
   "request": "attach",
-  "name": "Attach to Existing Blazor WebAssembly Application"
+  "url": "{URL}"
 }
 ```
 
@@ -1077,7 +1061,7 @@ The following launch configuration options are supported for the `blazorwasm` de
 | Option    | Description |
 | --------- | ----------- |
 | `request` | Use `launch` to launch and attach a debugging session to a Blazor WebAssembly app or `attach` to attach a debugging session to an already-running app. |
-| `url`     | The URL to open in the browser when debugging. Defaults to `https://localhost:5001`. |
+| `url`     | The URL to open in the browser when debugging. Defaults to `https://localhost:5001`. If the app is running at a different URL, an `about:blank` tab launches in the browser. |
 | `browser` | The browser to launch for the debugging session. Set to `edge` or `chrome`. Defaults to `chrome`. |
 | `trace`   | Used to generate logs from the JS debugger. Set to `true` to generate logs. |
 | `hosted`  | Must be set to `true` if launching and debugging a hosted Blazor WebAssembly app. |
@@ -1086,29 +1070,6 @@ The following launch configuration options are supported for the `blazorwasm` de
 | `program` | A reference to the executable to run the server of the hosted app. Must be set if `hosted` is `true`. |
 | `cwd`     | The working directory to launch the app under. Must be set if `hosted` is `true`. |
 | `env`     | The environment variables to provide to the launched process. Only applicable if `hosted` is set to `true`. |
-
-## Example launch configurations
-
-### Launch and debug a standalone Blazor WebAssembly app
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "launch",
-  "name": "Launch and Debug"
-}
-```
-
-### Attach to a running app at a specified URL
-
-```json
-{
-  "type": "blazorwasm",
-  "request": "attach",
-  "name": "Attach and Debug",
-  "url": "http://localhost:5000"
-}
-```
 
 # [Visual Studio for Mac](#tab/visual-studio-mac)
 
@@ -1245,4 +1206,4 @@ VsRegEdit.exe set "<VSInstallFolder>" HKCU JSDebugger\Options\Debugging "BlazorT
 
 The `{TIMEOUT}` placeholder in the preceding command is in milliseconds. For example, one minute is assigned as `60000`.
 
-::: moniker-end
+:::moniker-end
